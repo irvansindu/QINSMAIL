@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect, useRef, FormEvent } from 'react';
 import axios from 'axios';
 import Image from 'next/image';
 import QRCode from 'qrcode';
@@ -23,6 +23,8 @@ export default function Home() {
   const [domain, setDomain] = useState(''); // with leading @ for display
   const [domains, setDomains] = useState<string[]>(DEFAULT_DOMAINS);
   const [selectedDomain, setSelectedDomain] = useState('digitexa.biz.id'); // selected domain
+  const [domainMenuOpen, setDomainMenuOpen] = useState(false);
+  const domainMenuRef = useRef<HTMLDivElement | null>(null);
   const [apiLogin, setApiLogin] = useState(''); // unused with ImprovMX store but kept for UI
   const [apiDomain, setApiDomain] = useState('');
   const [emails, setEmails] = useState<Email[]>([]);
@@ -158,6 +160,19 @@ export default function Home() {
     };
     loadSettings();
   }, []);
+
+  useEffect(() => {
+    if (!domainMenuOpen) return;
+    const onDown = (ev: MouseEvent) => {
+      const el = domainMenuRef.current;
+      if (!el) return;
+      if (ev.target instanceof Node && !el.contains(ev.target)) {
+        setDomainMenuOpen(false);
+      }
+    };
+    window.addEventListener('mousedown', onDown);
+    return () => window.removeEventListener('mousedown', onDown);
+  }, [domainMenuOpen]);
 
   const handleAccessSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -800,27 +815,51 @@ export default function Home() {
                   <Inbox size={14} className="text-white/60" />
                   Domain
                 </label>
-                <select
-                  value={selectedDomain}
-                  onChange={(e) => {
-                    const newDomain = e.target.value;
-                    setSelectedDomain(newDomain);
-                    // Update current domain display if email is set
-                    if (email) {
-                      setDomain(`@${newDomain}`);
-                      setApiDomain(newDomain);
-                      // Clear emails when domain changes
-                      setEmails([]);
-                      setSelectedEmail(null);
-                    }
-                  }}
-                  style={{ colorScheme: 'dark' }}
-                  className="w-full h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
-                >
-                  {domains.map(domain => (
-                    <option key={domain} value={domain}>{domain}</option>
-                  ))}
-                </select>
+                <div ref={domainMenuRef} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setDomainMenuOpen(v => !v)}
+                    className="w-full h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-400/60 flex items-center justify-between"
+                    aria-haspopup="listbox"
+                    aria-expanded={domainMenuOpen}
+                  >
+                    <span className="truncate">{selectedDomain}</span>
+                    <span className="text-white/50">▾</span>
+                  </button>
+                  {domainMenuOpen && (
+                    <div
+                      role="listbox"
+                      className="absolute z-50 mt-2 w-full max-h-72 overflow-auto rounded-2xl border border-white/10 bg-[#12081f]/95 backdrop-blur-xl shadow-[0_30px_80px_rgba(0,0,0,0.55)]"
+                    >
+                      {domains.map((d) => (
+                        <button
+                          key={d}
+                          type="button"
+                          role="option"
+                          aria-selected={d === selectedDomain}
+                          onClick={() => {
+                            const newDomain = d;
+                            setSelectedDomain(newDomain);
+                            setDomainMenuOpen(false);
+                            if (email) {
+                              setDomain(`@${newDomain}`);
+                              setApiDomain(newDomain);
+                              setEmails([]);
+                              setSelectedEmail(null);
+                            }
+                          }}
+                          className={`w-full text-left px-3 py-2.5 text-sm transition-colors ${
+                            d === selectedDomain
+                              ? 'bg-fuchsia-600/25 text-white'
+                              : 'text-white/90 hover:bg-white/10'
+                          }`}
+                        >
+                          {d}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="relative">
                 <input

@@ -18,6 +18,36 @@ const DEFAULT_DOMAINS = [
   'capcuters.web.id',
 ];
 
+const KV_KEY = 'qinsmail:domains';
+
+function hasKv(): boolean {
+  return Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+}
+
+async function kvGet(key: string): Promise<string | null> {
+  const url = process.env.KV_REST_API_URL;
+  const token = process.env.KV_REST_API_TOKEN;
+  if (!url || !token) return null;
+  const res = await fetch(`${url}/get/${encodeURIComponent(key)}`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store',
+  });
+  if (!res.ok) return null;
+  const json = (await res.json().catch(() => null)) as { result?: string | null } | null;
+  return typeof json?.result === 'string' ? json.result : null;
+}
+
+async function kvSet(key: string, value: string): Promise<void> {
+  const url = process.env.KV_REST_API_URL;
+  const token = process.env.KV_REST_API_TOKEN;
+  if (!url || !token) return;
+  const encoded = encodeURIComponent(value);
+  await fetch(`${url}/set/${encodeURIComponent(key)}/${encoded}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
 const storePath = path.join(process.cwd(), 'data', 'domains.json');
 
 async function ensureStoreFile(): Promise<void> {
@@ -51,6 +81,28 @@ function isValidDomain(domain: string): boolean {
 }
 
 export async function getDomains(): Promise<string[]> {
+  if (hasKv()) {
+    const raw = await kvGet(KV_KEY);
+    if (!raw) {
+      const seed = [...DEFAULT_DOMAINS].sort();
+      await kvSet(KV_KEY, JSON.stringify(seed));
+      return seed;
+    }
+    try {
+      const parsed = JSON.parse(raw) as unknown;
+      const list = Array.isArray(parsed) ? parsed : [];
+      const out = list
+        .map(v => (typeof v === 'string' ? normalizeDomain(v) : ''))
+        .filter(Boolean)
+        .filter(isValidDomain);
+      return Array.from(new Set(out)).sort();
+    } catch {
+      const seed = [...DEFAULT_DOMAINS].sort();
+      await kvSet(KV_KEY, JSON.stringify(seed));
+      return seed;
+    }
+  }
+
   await ensureStoreFile();
   try {
     const raw = await fs.readFile(storePath, 'utf8');
@@ -67,6 +119,10 @@ export async function getDomains(): Promise<string[]> {
 }
 
 async function saveDomains(domains: string[]): Promise<void> {
+  if (hasKv()) {
+    await kvSet(KV_KEY, JSON.stringify(domains));
+    return;
+  }
   await ensureStoreFile();
   await fs.writeFile(storePath, JSON.stringify(domains, null, 2), 'utf8');
 }
