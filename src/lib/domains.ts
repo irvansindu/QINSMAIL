@@ -20,13 +20,21 @@ const DEFAULT_DOMAINS = [
 
 const KV_KEY = 'qinsmail:domains';
 
+function kvUrl(): string {
+  return process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || '';
+}
+
+function kvToken(): string {
+  return process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || '';
+}
+
 function hasKv(): boolean {
-  return Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+  return Boolean(kvUrl() && kvToken());
 }
 
 async function kvGet(key: string): Promise<string | null> {
-  const url = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
+  const url = kvUrl();
+  const token = kvToken();
   if (!url || !token) return null;
   const res = await fetch(`${url}/get/${encodeURIComponent(key)}`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -38,8 +46,8 @@ async function kvGet(key: string): Promise<string | null> {
 }
 
 async function kvSet(key: string, value: string): Promise<void> {
-  const url = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
+  const url = kvUrl();
+  const token = kvToken();
   if (!url || !token) return;
   const encoded = encodeURIComponent(value);
   await fetch(`${url}/set/${encodeURIComponent(key)}/${encoded}`, {

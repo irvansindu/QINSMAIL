@@ -52,6 +52,11 @@ To enable KV:
 - `KV_REST_API_URL`
 - `KV_REST_API_TOKEN`
 
+Alternatively, if you are using Upstash Redis from the Vercel Marketplace, you can set:
+
+- `UPSTASH_REDIS_REST_URL`
+- `UPSTASH_REDIS_REST_TOKEN`
+
 The app will automatically seed default domains/settings into KV on first access if they are missing.
 
 ### Admin authentication
