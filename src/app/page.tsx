@@ -1176,7 +1176,7 @@ export default function Home() {
         <footer className="text-center text-sm text-white/60 mt-12">
           <p>
             © 2025{' '}
-            <a href="https://irvanstore.web.id" target="_blank" rel="noopener noreferrer" className="text-fuchsia-200 hover:underline">Irvan Sindu</a>
+            <a href="https://qinzstore.asia" target="_blank" rel="noopener noreferrer" className="text-fuchsia-200 hover:underline">QINZ STORE</a>
           </p>
         </footer>
       </div>
