@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { addDomain, deleteDomain, getDomains } from '@/lib/domains';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 function getToken(request: Request): string {
   const h = request.headers;

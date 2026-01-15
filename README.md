@@ -34,3 +34,30 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Production notes (Vercel)
+
+### Admin domain/settings persistence
+
+Vercel's filesystem is read-only in production. This project uses:
+
+- File-based JSON storage for local development (`data/domains.json`, `data/settings.json`)
+- Vercel KV for production persistence when KV env vars are present
+
+To enable KV:
+
+1. Create a KV store in your Vercel project
+2. Add these environment variables in Vercel (Project Settings -> Environment Variables):
+
+- `KV_REST_API_URL`
+- `KV_REST_API_TOKEN`
+
+The app will automatically seed default domains/settings into KV on first access if they are missing.
+
+### Admin authentication
+
+Set:
+
+- `ADMIN_TOKEN`
+
+This token is required to use `/admin` and the admin APIs.

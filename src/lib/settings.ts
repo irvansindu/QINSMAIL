@@ -9,6 +9,36 @@ const DEFAULT_SETTINGS: AppSettings = {
   accessGateEnabled: true,
 };
 
+const KV_KEY = 'qinsmail:settings';
+
+function hasKv(): boolean {
+  return Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+}
+
+async function kvGet(key: string): Promise<string | null> {
+  const url = process.env.KV_REST_API_URL;
+  const token = process.env.KV_REST_API_TOKEN;
+  if (!url || !token) return null;
+  const res = await fetch(`${url}/get/${encodeURIComponent(key)}`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store',
+  });
+  if (!res.ok) return null;
+  const json = (await res.json().catch(() => null)) as { result?: string | null } | null;
+  return typeof json?.result === 'string' ? json.result : null;
+}
+
+async function kvSet(key: string, value: string): Promise<void> {
+  const url = process.env.KV_REST_API_URL;
+  const token = process.env.KV_REST_API_TOKEN;
+  if (!url || !token) return;
+  const encoded = encodeURIComponent(value);
+  await fetch(`${url}/set/${encodeURIComponent(key)}/${encoded}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
 const storePath = path.join(process.cwd(), 'data', 'settings.json');
 
 async function ensureStoreFile(): Promise<void> {
@@ -21,6 +51,26 @@ async function ensureStoreFile(): Promise<void> {
 }
 
 export async function getSettings(): Promise<AppSettings> {
+  if (hasKv()) {
+    const raw = await kvGet(KV_KEY);
+    if (!raw) {
+      await kvSet(KV_KEY, JSON.stringify(DEFAULT_SETTINGS));
+      return { ...DEFAULT_SETTINGS };
+    }
+    try {
+      const parsed = JSON.parse(raw) as Partial<AppSettings>;
+      return {
+        accessGateEnabled:
+          typeof parsed?.accessGateEnabled === 'boolean'
+            ? parsed.accessGateEnabled
+            : DEFAULT_SETTINGS.accessGateEnabled,
+      };
+    } catch {
+      await kvSet(KV_KEY, JSON.stringify(DEFAULT_SETTINGS));
+      return { ...DEFAULT_SETTINGS };
+    }
+  }
+
   await ensureStoreFile();
   try {
     const raw = await fs.readFile(storePath, 'utf8');
@@ -44,6 +94,10 @@ export async function updateSettings(patch: Partial<AppSettings>): Promise<AppSe
         ? patch.accessGateEnabled
         : current.accessGateEnabled,
   };
+  if (hasKv()) {
+    await kvSet(KV_KEY, JSON.stringify(next));
+    return next;
+  }
   await fs.writeFile(storePath, JSON.stringify(next, null, 2), 'utf8');
   return next;
 }
