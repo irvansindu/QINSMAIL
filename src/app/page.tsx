@@ -814,6 +814,7 @@ export default function Home() {
                       setSelectedEmail(null);
                     }
                   }}
+                  style={{ colorScheme: 'dark' }}
                   className="w-full h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
                 >
                   {domains.map(domain => (
