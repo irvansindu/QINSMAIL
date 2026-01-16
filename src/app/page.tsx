@@ -764,20 +764,6 @@ export default function Home() {
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-3 bg-gradient-to-r from-fuchsia-300 via-pink-300 to-rose-300 bg-clip-text text-transparent">Email Sementara</h1>
           <p className="text-white/70 text-sm sm:text-base max-w-2xl mx-auto">Buat alamat email sekali pakai untuk verifikasi, uji coba layanan, atau melindungi privasi Anda.</p>
-          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <button
-              onClick={generateStrong}
-              className="h-11 px-5 rounded-xl text-white font-semibold bg-gradient-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500 transition-colors shadow-md hover:shadow-lg"
-            >
-              Mulai Sekarang
-            </button>
-            <a
-              href="#generator"
-              className="inline-flex h-11 px-5 items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition-colors shadow-md font-medium text-white border border-white/10"
-            >
-              Lihat Generator
-            </a>
-          </div>
         </header>
 
         <section className="mb-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-4 fade-in fade-in-1">
