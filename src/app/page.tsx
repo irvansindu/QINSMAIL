@@ -76,7 +76,8 @@ export default function Home() {
         if (cancelled) return;
         if (cleaned.length > 0) {
           setDomains(cleaned);
-          if (!cleaned.includes(selectedDomain)) {
+          // Only update selectedDomain if it's currently empty
+          if (!selectedDomain) {
             setSelectedDomain(cleaned[0]);
           }
         }
@@ -203,68 +204,88 @@ export default function Home() {
   };
 
   useEffect(() => {
-    try {
-      if (typeof window === 'undefined') return;
-      const params = new URLSearchParams(window.location.search);
-      // accept multiple param names case-insensitively
-      const candidates = ['addr', 'address', 'email'];
-      let raw: string | null = null;
-      for (const [k, v] of params.entries()) {
-        if (candidates.includes(k.toLowerCase())) { raw = v; break; }
-      }
-      // Support pretty path: /<login@domain>
-      if (!raw) {
-        try {
+    if (domains.length === 0) return;
+
+    const init = async () => {
+      try {
+        if (typeof window === 'undefined') return;
+        
+        // 1. Check for Deep Link
+        const params = new URLSearchParams(window.location.search);
+        const candidates = ['addr', 'address', 'email'];
+        let raw: string | null = null;
+        for (const [k, v] of params.entries()) {
+          if (candidates.includes(k.toLowerCase())) { raw = v; break; }
+        }
+        if (!raw) {
           const path = (window.location.pathname || '').replace(/^\/+/, '');
-          if (path && !path.includes('/')) {
+          if (path && !path.includes('/') && path.includes('@')) {
             raw = path;
           }
-        } catch {}
-      }
-      if (!raw) return;
-      let decoded = '';
-      try { decoded = decodeURIComponent(raw.replace(/\+/g, '%20')); } catch { decoded = raw; }
-      const value = (decoded || '').trim().toLowerCase();
-      if (!value) return;
+        }
 
-      // parse login and domain
-      let login = '';
-      let dom = '';
-      if (value.includes('@')) {
-        const parts = value.split('@');
-        login = (parts[0] || '').replace(/[^a-z0-9._-]/g, '').replace(/^[^a-z0-9]+/, '');
-        dom = (parts[1] || '').trim();
-      } else {
-        login = value.replace(/[^a-z0-9._-]/g, '').replace(/^[^a-z0-9]+/, '');
-        dom = domains.length > 0 ? domains[0] : '';
-      }
-      if (!login || !dom) return;
-      // fallback if domain not allowed
-      if (domains.length > 0 && !domains.includes(dom)) {
-        dom = domains[0];
-      }
+        if (raw) {
+          let decoded = '';
+          try { decoded = decodeURIComponent(raw.replace(/\+/g, '%20')); } catch { decoded = raw; }
+          const value = (decoded || '').trim().toLowerCase();
+          if (value) {
+            let login = '';
+            let dom = '';
+            if (value.includes('@')) {
+              const parts = value.split('@');
+              login = (parts[0] || '').replace(/[^a-z0-9._-]/g, '').replace(/^[^a-z0-9]+/, '');
+              dom = (parts[1] || '').trim();
+            } else {
+              login = value.replace(/[^a-z0-9._-]/g, '').replace(/^[^a-z0-9]+/, '');
+              dom = domains[0];
+            }
+            
+            if (login && dom) {
+              if (!domains.includes(dom)) dom = domains[0];
+              setSelectedDomain(dom);
+              setEmail(login);
+              setDomain(`@${dom}`);
+              setApiLogin(login);
+              setApiDomain(dom);
+              setPrefilledFromLink(true);
+              pushToast('Alamat dari tautan diterapkan', 'success');
+              return;
+            }
+          }
+        }
 
-      setSelectedDomain(dom);
-      setEmail(login);
-      setDomain(`@${dom}`);
-      setApiLogin(login);
-      setApiDomain(dom);
-      setCopied(false);
-      setEmails([]);
-      setSelectedEmail(null);
-      setPrefilledFromLink(true);
-      try {
-        console.log('[deep-link] raw=', raw, 'parsed login=', login, 'domain=', dom);
-      } catch {}
-      try {
-        const id = Date.now() + Math.floor(Math.random() * 1000);
-        setToasts(prev => [...prev, { id, text: 'Alamat dari tautan diterapkan', type: 'success' }]);
-        setTimeout(() => {
-          setToasts(prev => prev.filter(t => t.id !== id));
-        }, 2200);
-      } catch {}
-    } catch {}
-  }, []);
+        // 2. Check LocalStorage
+        const saved = localStorage.getItem('lastUsername');
+        const savedDomain = localStorage.getItem('selectedDomain');
+        const savedAddrs = localStorage.getItem('savedAddresses');
+        if (savedAddrs) {
+          try { setSavedList(JSON.parse(savedAddrs)); } catch {}
+        }
+
+        if (saved) {
+          let dom = savedDomain || domains[0];
+          if (!domains.includes(dom)) dom = domains[0];
+          
+          setSelectedDomain(dom);
+          setEmail(saved);
+          setDomain(`@${dom}`);
+          setApiLogin(saved);
+          setApiDomain(dom);
+          return;
+        }
+
+        // 3. Fallback: Generate Random
+        if (!apiLogin || !apiDomain) {
+          generateEmail();
+        }
+      } catch (err) {
+        console.error('Initialization error:', err);
+      }
+    };
+
+    init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [domains]);
 
   // Simple beep using Web Audio API (no asset file needed)
   const playBeep = () => {
@@ -567,56 +588,6 @@ export default function Home() {
     saveReadKeys(allKeys, addr);
   };
 
-  // B: Integrasi API. A: Auto-generate saat mount. Prefer load from localStorage if available.
-  useEffect(() => {
-    try {
-      // If URL already carries deep-link params, skip restore entirely to avoid race on first mount
-      try {
-        if (typeof window !== 'undefined') {
-          const params = new URLSearchParams(window.location.search);
-          for (const [k] of params.entries()) {
-            const kk = k.toLowerCase();
-            if (kk === 'addr' || kk === 'address' || kk === 'email') {
-              return;
-            }
-          }
-          // Also skip restore when using pretty path deep-link: /<login@domain>
-          try {
-            const path = (window.location.pathname || '').replace(/^\/+/, '');
-            if (path && !path.includes('/') && path.includes('@')) {
-              return;
-            }
-          } catch {}
-        }
-      } catch {}
-      if (prefilledFromLink) return;
-      const saved = typeof window !== 'undefined' ? localStorage.getItem('lastUsername') : null;
-      const savedDomain = typeof window !== 'undefined' ? localStorage.getItem('selectedDomain') : null;
-      const savedAddrs = typeof window !== 'undefined' ? localStorage.getItem('savedAddresses') : null;
-      if (savedAddrs) {
-        try { setSavedList(JSON.parse(savedAddrs)); } catch {}
-      }
-      if (savedDomain && (domains.length === 0 || domains.includes(savedDomain))) {
-        setSelectedDomain(savedDomain);
-      }
-      if (saved) {
-        const dom = savedDomain || (domains.length > 0 ? domains[0] : '');
-        if (!dom) return;
-        setEmail(saved);
-        setDomain(`@${dom}`);
-        setApiLogin(saved);
-        setApiDomain(dom);
-        setCopied(false);
-        setEmails([]);
-        setSelectedEmail(null);
-        return;
-      }
-    } catch {}
-    if (!apiLogin || !apiDomain) {
-      generateEmail();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [prefilledFromLink]);
 
   // Persist username to localStorage so it survives refresh
   useEffect(() => {
