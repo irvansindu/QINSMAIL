@@ -124,7 +124,9 @@ export default function AdminPage() {
       const s = json.settings;
       if (typeof s?.gmailUser === 'string') setGmailUser(s.gmailUser);
       if (typeof s?.gmailAppPassword === 'string') setGmailAppPassword(s.gmailAppPassword);
-      alert('Settings Gmail berhasil disimpan');
+      
+      // Auto-test after save
+      onTestImap();
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'failed';
       setError(msg);
@@ -133,25 +135,24 @@ export default function AdminPage() {
     }
   };
 
-  const onTestImap = async () => {
-    setLoading(true);
-    setError('');
+  const onTestImap = async (overrideToken?: string) => {
+    const effectiveToken = (overrideToken || token).trim();
+    if (!effectiveToken) return;
+
     setTestResult(null);
     try {
       const res = await fetch('/api/admin/test-imap', {
         method: 'POST',
         headers: {
-          ...headers,
-          'Authorization': `Bearer ${token.trim()}`
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${effectiveToken}`
         },
       });
       const json = await res.json().catch(() => ({ ok: false, error: 'failed' }));
       setTestResult(json);
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'failed';
-      setError(msg);
-    } finally {
-      setLoading(false);
+      // Don't show global error for auto-test, just the result
+      setTestResult({ ok: false, error: 'Koneksi gagal' });
     }
   };
 
