@@ -8,8 +8,6 @@ type SettingsResp = {
   ok: boolean;
   settings?: {
     accessGateEnabled?: boolean;
-    gmailUser?: string;
-    gmailAppPassword?: string;
   };
   error?: string;
 };
