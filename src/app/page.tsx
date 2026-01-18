@@ -460,15 +460,17 @@ export default function Home() {
   const checkEmails = async (): Promise<boolean> => {
     const full = `${email}${domain}`.toLowerCase();
     if (!email || !domain) return false;
-    const showSpinner = emails.length === 0;
+    const showSpinner = emails.length === 0; // only show skeleton on first load
     try {
       if (showSpinner) setLoading(true);
       interface ApiInboxItem { id: number; from: string; subject: string; date: string; text: string; html: string }
       const res = await axios.get<{ok:boolean; data:ApiInboxItem[]; error?:string}>(
         `/api/inbox?to=${encodeURIComponent(full)}`
       );
-      if (!res.data?.ok) return false;
-
+      if (!res.data?.ok) {
+        console.warn('Inbox fetch failed:', res.data?.error || 'unknown error');
+        return false;
+      }
       const list: Email[] = (res.data.data || [])
         .map((m: ApiInboxItem): Email => ({
           id: m.id,
@@ -480,52 +482,62 @@ export default function Home() {
           htmlBody: m.html,
         }))
         .sort((a: Email, b: Email) => (new Date(b.date).getTime() - new Date(a.date).getTime()));
-
+      // Detect new messages compared to current state
       const addrNow = currentAddress();
-      const prevY = typeof window !== 'undefined' ? window.scrollY : 0;
-
-      setEmails(prev => {
-        const storedRead = loadReadIds(addrNow);
-        const storedKeys = loadReadKeys(addrNow);
-        const prevIds = new Set(prev.map(e => e.id));
-        
-        // Detect actually new messages for beep/notif
-        const reallyNew = list.filter(m => !prevIds.has(m.id) && !storedRead.has(m.id) && !storedKeys.has(messageKey(m)));
-        
-        if (reallyNew.length > 0) {
-          setNewCount(c => c + reallyNew.length);
-          playBeep();
-          // Mobile vibration
-          try {
-            if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-              (navigator as Navigator & { vibrate?: (p: number[]) => boolean }).vibrate?.([80, 40, 80]);
-            }
-          } catch {}
-          // Desktop notif
-          if (typeof document !== 'undefined' && document.hidden) {
-            void ensureNotificationPermission().then(ok => {
-              if (ok && reallyNew[0]) {
-                const first = reallyNew[0];
-                new Notification('Pesan baru', { body: `${first.from}\n${first.subject}` });
-              }
-            });
-          }
-        }
-
-        return list.map(m => {
-          const existed = prev.find(e => e.id === m.id);
+      const storedRead = loadReadIds(addrNow);
+      const storedKeys = loadReadKeys(addrNow);
+      const prevIds = new Set(emails.map(e => e.id));
+      // Only count as "new" if not seen in current state AND not already marked read previously (by id or key)
+      const newOnes = list.filter(m => !prevIds.has(m.id) && !storedRead.has(m.id) && !storedKeys.has(messageKey(m)));
+      if (newOnes.length > 0) {
+        setNewCount(c => c + newOnes.length);
+        // mark only new ones as unread, keep existing read flags
+        const merged = list.map(m => {
+          const existed = prevIds.has(m.id) ? emails.find(e => e.id === m.id) : undefined;
+          // If existed: keep previous read OR stored by id OR stored by key
+          // If brand-new id: only stored by id applies (do NOT use subject key to mark read)
           const read = existed
-            ? (existed.read ?? false) || storedRead.has(m.id) || storedKeys.has(messageKey(m))
+            ? (existed.read ?? false) || storedRead.has(m.id) || storedKeys.has(messageKey(m)) || false
             : storedRead.has(m.id) || false;
           return { ...m, read };
         });
-      });
-
-      // restore scroll
-      setTimeout(() => {
+        const prevY = typeof window !== 'undefined' ? window.scrollY : 0;
+        setEmails(merged);
+        // restore scroll to avoid jumpy feel
         try { if (typeof window !== 'undefined') window.scrollTo(0, prevY); } catch {}
-      }, 0);
-
+        playBeep();
+        // Mobile vibration if supported
+        try {
+          if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+            (navigator as Navigator & { vibrate?: (pattern: number | number[]) => boolean }).vibrate?.([80, 40, 80]);
+          }
+        } catch {}
+        // Desktop notification if tab not active
+        try {
+          if (typeof document !== 'undefined' && document.hidden) {
+            const ok = await ensureNotificationPermission();
+            if (ok && newOnes[0]) {
+              const first = newOnes[0];
+              const body = `${first.from || 'Pengirim tidak dikenal'}\n${first.subject || 'Pesan baru'}`;
+              new Notification('Pesan baru diterima', {
+                body,
+              });
+            }
+          }
+        } catch {}
+      } else {
+        // preserve read flags
+        const merged = list.map(m => {
+          const existed = emails.find(e => e.id === m.id);
+          const read = existed
+            ? (existed.read ?? false) || storedRead.has(m.id) || storedKeys.has(messageKey(m)) || false
+            : storedRead.has(m.id) || false;
+          return { ...m, read };
+        });
+        const prevY = typeof window !== 'undefined' ? window.scrollY : 0;
+        setEmails(merged);
+        try { if (typeof window !== 'undefined') window.scrollTo(0, prevY); } catch {}
+      }
       return true;
     } catch (e) {
       console.error(e);
@@ -546,16 +558,13 @@ export default function Home() {
   };
 
   const markAllRead = () => {
+    setEmails(prev => prev.map(e => ({ ...e, read: true })));
     setNewCount(0);
     const addr = currentAddress();
-    setEmails(prev => {
-      const next = prev.map(e => ({ ...e, read: true }));
-      const allIds = new Set<number>(next.map(e => e.id));
-      const allKeys = new Set<string>(next.map(e => messageKey(e)));
-      saveReadIds(allIds, addr);
-      saveReadKeys(allKeys, addr);
-      return next;
-    });
+    const allIds = new Set<number>(emails.map(e => e.id));
+    const allKeys = new Set<string>(emails.map(e => messageKey(e)));
+    saveReadIds(allIds, addr);
+    saveReadKeys(allKeys, addr);
   };
 
   // B: Integrasi API. A: Auto-generate saat mount. Prefer load from localStorage if available.
@@ -685,16 +694,18 @@ export default function Home() {
     const onMessages = (ev: MessageEvent) => {
       try {
         const data = JSON.parse(ev.data || '[]') as { id:number; from:string; subject:string; date:string; text:string; html:string }[];
+        // transform to Email[]
         const incoming = (data || []).map(m => ({ id: m.id, from: m.from, subject: m.subject || '(tanpa subjek)', date: m.date, read: false, body: m.text, htmlBody: m.html }));
         if (incoming.length === 0) return;
-        
+        // merge
         const addrNow = currentAddress();
+        const storedRead = loadReadIds(addrNow);
+        const storedKeys = loadReadKeys(addrNow);
         setEmails(prev => {
-          const storedRead = loadReadIds(addrNow);
-          const storedKeys = loadReadKeys(addrNow);
           const prevMap = new Map(prev.map(e => [e.id, e]));
           const prevIds = new Set(prev.map(p => p.id));
 
+          // First, map incoming and preserve read if existed or stored
           const normalizedIncoming = incoming.map(m => {
             const existed = prevMap.get(m.id);
             return {
@@ -703,10 +714,14 @@ export default function Home() {
             } as Email;
           });
 
+          // Then, keep previous items that are not present in incoming (server may send subset)
           const prevOnly = prev.filter(p => !normalizedIncoming.some(i => i.id === p.id));
+
+          // Merge and sort
           const mergedAll = [...normalizedIncoming, ...prevOnly]
             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
+          // Update new counter only for actually new, unread items from this batch
           const addedUnread = normalizedIncoming.filter(m => !prevIds.has(m.id) && !m.read).length;
           if (addedUnread > 0) setNewCount(c => c + addedUnread);
 

@@ -1,16 +1,18 @@
 import { NextResponse } from 'next/server';
 import { listEmails } from '@/lib/inbox';
+import { getSettings } from '@/lib/settings';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const to = (url.searchParams.get('to') || '').toLowerCase();
   if (!to) return NextResponse.json({ ok: false, error: 'Missing to' }, { status: 400 });
- 
-  // If Gmail IMAP is configured, proxy to the Gmail-backed route
-  const user = process.env.GMAIL_USER;
-  const pass = process.env.GMAIL_APP_PASSWORD;
+
+  const settings = await getSettings();
+  const user = settings.gmailUser || process.env.GMAIL_USER;
+  const pass = settings.gmailAppPassword || process.env.GMAIL_APP_PASSWORD;
   if (user && pass) {
     try {
       const origin = new URL(req.url).origin;

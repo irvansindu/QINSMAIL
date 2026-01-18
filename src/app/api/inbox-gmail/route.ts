@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import { ImapFlow } from 'imapflow';
 import { simpleParser } from 'mailparser';
+import { getSettings } from '@/lib/settings';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 interface ImapEnvelopeAddress { address?: string }
 interface ImapEnvelope { subject?: string; from?: ImapEnvelopeAddress[] }
@@ -27,8 +29,9 @@ export async function GET(req: Request) {
   const to = (url.searchParams.get('to') || '').toLowerCase();
   if (!to) return NextResponse.json({ ok: false, error: 'Missing to' }, { status: 400 });
 
-  const user = process.env.GMAIL_USER;
-  const pass = process.env.GMAIL_APP_PASSWORD;
+  const settings = await getSettings();
+  const user = settings.gmailUser || process.env.GMAIL_USER;
+  const pass = settings.gmailAppPassword || process.env.GMAIL_APP_PASSWORD;
   if (!user || !pass) {
     return NextResponse.json({ ok: false, error: 'Missing GMAIL_USER or GMAIL_APP_PASSWORD' }, { status: 400 });
   }
@@ -42,41 +45,34 @@ export async function GET(req: Request) {
 
   try {
     await client.connect();
+    await client.mailboxOpen('INBOX');
+
+    const seq = await client.search({ header: { to } });
+    // fetch latest 30 (handle false/empty)
+    const ids = Array.isArray(seq) ? seq.slice(-30) : [];
+    if (ids.length === 0) {
+      return NextResponse.json({ ok: true, data: [] });
+    }
 
     const messages: InboxItem[] = [];
-    const mailboxes = ['INBOX', '[Gmail]/Spam'];
-
-    for (const mailbox of mailboxes) {
-      try {
-        await client.mailboxOpen(mailbox);
-        const seq = await client.search({ header: { to } });
-        const ids = Array.isArray(seq) ? seq.slice(-30) : [];
-        
-        if (ids.length > 0) {
-          for await (const msgRaw of client.fetch(ids, { uid: true, envelope: true, internalDate: true, source: true })) {
-            const msg = msgRaw as unknown as ImapFetched;
-            const parsed = await simpleParser(msg.source as Buffer);
-            const uidNum = Number(msg.uid ?? 0);
-            const fromList = msg.envelope?.from?.map(a => a.address).filter(Boolean).join(', ') ?? '';
-            const from = (parsed as { from?: { text?: string } }).from?.text || fromList || '';
-            const subject = (parsed as { subject?: string }).subject || msg.envelope?.subject || '(tanpa subjek)';
-            const dateVal = (parsed as { date?: Date }).date || msg.internalDate || new Date();
-            const dateIso = new Date(dateVal as unknown as string | number | Date).toISOString();
-            const htmlVal = (parsed as { html?: string | boolean }).html;
-            messages.push({
-              id: uidNum,
-              from,
-              subject: mailbox === '[Gmail]/Spam' ? `[SPAM] ${subject}` : subject,
-              date: dateIso,
-              text: (parsed as { text?: string }).text || '',
-              html: htmlVal ? (typeof htmlVal === 'string' ? htmlVal : '') : '',
-            });
-          }
-        }
-      } catch (err) {
-        // Skip if mailbox doesn't exist (e.g. localized spam folder name)
-        console.error(`Error fetching from ${mailbox}:`, err);
-      }
+    for await (const msgRaw of client.fetch(ids, { uid: true, envelope: true, internalDate: true, source: true })) {
+      const msg = msgRaw as unknown as ImapFetched;
+      const parsed = await simpleParser(msg.source as Buffer);
+      const uidNum = Number(msg.uid ?? 0);
+      const fromList = msg.envelope?.from?.map(a => a.address).filter(Boolean).join(', ') ?? '';
+      const from = (parsed as { from?: { text?: string } }).from?.text || fromList || '';
+      const subject = (parsed as { subject?: string }).subject || msg.envelope?.subject || '(tanpa subjek)';
+      const dateVal = (parsed as { date?: Date }).date || msg.internalDate || new Date();
+      const dateIso = new Date(dateVal as unknown as string | number | Date).toISOString();
+      const htmlVal = (parsed as { html?: string | boolean }).html;
+      messages.push({
+        id: uidNum,
+        from,
+        subject,
+        date: dateIso,
+        text: (parsed as { text?: string }).text || '',
+        html: htmlVal ? (typeof htmlVal === 'string' ? htmlVal : '') : '',
+      });
     }
 
     // sort newest first
