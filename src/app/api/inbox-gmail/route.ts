@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getGmailClient } from '@/lib/gmail';
+import { gmail_v1 } from 'googleapis';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,7 +40,7 @@ export async function GET(req: Request) {
         format: 'full',
       });
 
-      const payload = msg.data.payload;
+      const payload = msg.data.payload as gmail_v1.Schema$MessagePart;
       const headers = payload?.headers || [];
       
       const from = headers.find(h => h.name?.toLowerCase() === 'from')?.value || '';
@@ -51,14 +52,15 @@ export async function GET(req: Request) {
       let html = '';
 
       // Helper to extract body
-      const getBody = (part: { body?: { data?: string }; mimeType?: string; parts?: any[] }) => {
-        if (part.body?.data) {
-          const body = Buffer.from(part.body.data, 'base64').toString('utf8');
+      const getBody = (part: gmail_v1.Schema$MessagePart) => {
+        const bodyData = part.body?.data;
+        if (bodyData) {
+          const body = Buffer.from(bodyData, 'base64').toString('utf8');
           if (part.mimeType === 'text/plain') text += body;
           else if (part.mimeType === 'text/html') html += body;
         }
         if (part.parts) {
-          part.parts.forEach(getBody);
+          part.parts.forEach((p) => getBody(p));
         }
       };
 
