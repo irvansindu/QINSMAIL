@@ -21,9 +21,6 @@ export default function AdminPage() {
   const [domains, setDomains] = useState<string[]>([]);
   const [domainInput, setDomainInput] = useState('');
   const [accessGateEnabled, setAccessGateEnabled] = useState<boolean>(true);
-  const [gmailUser, setGmailUser] = useState('');
-  const [gmailAppPassword, setGmailAppPassword] = useState('');
-  const [testResult, setTestResult] = useState<{ ok: boolean; message?: string; error?: string } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -53,8 +50,6 @@ export default function AdminPage() {
       if (jsonSettings.ok) {
         const s = jsonSettings.settings;
         if (typeof s?.accessGateEnabled === 'boolean') setAccessGateEnabled(s.accessGateEnabled);
-        if (typeof s?.gmailUser === 'string') setGmailUser(s.gmailUser);
-        if (typeof s?.gmailAppPassword === 'string') setGmailAppPassword(s.gmailAppPassword);
       }
 
       setAuthed(true);
@@ -106,53 +101,6 @@ export default function AdminPage() {
       setError(msg);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const saveGmailSettings = async () => {
-    setLoading(true);
-    setError('');
-    setTestResult(null);
-    try {
-      const res = await fetch('/api/admin/settings', {
-        method: 'PATCH',
-        headers,
-        body: JSON.stringify({ gmailUser, gmailAppPassword }),
-      });
-      const json = (await res.json().catch(() => ({ ok: false }))) as SettingsResp;
-      if (!json.ok) throw new Error(json.error || 'failed');
-      const s = json.settings;
-      if (typeof s?.gmailUser === 'string') setGmailUser(s.gmailUser);
-      if (typeof s?.gmailAppPassword === 'string') setGmailAppPassword(s.gmailAppPassword);
-      
-      // Auto-test after save
-      onTestImap();
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'failed';
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onTestImap = async (overrideToken?: string) => {
-    const effectiveToken = (overrideToken || token).trim();
-    if (!effectiveToken) return;
-
-    setTestResult(null);
-    try {
-      const res = await fetch('/api/admin/test-imap', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${effectiveToken}`
-        },
-      });
-      const json = await res.json().catch(() => ({ ok: false, error: 'failed' }));
-      setTestResult(json);
-    } catch (e: unknown) {
-      // Don't show global error for auto-test, just the result
-      setTestResult({ ok: false, error: 'Koneksi gagal' });
     }
   };
 
@@ -262,63 +210,6 @@ export default function AdminPage() {
               >
                 Logout
               </button>
-            </div>
-
-            <div className="mb-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-4">
-              <div className="text-sm font-semibold text-white mb-4">Konfigurasi Gmail IMAP</div>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs text-white/60 mb-1.5">Gmail User (Email)</label>
-                  <input
-                    value={gmailUser}
-                    onChange={(e) => setGmailUser(e.target.value)}
-                    placeholder="contoh@gmail.com"
-                    className="w-full h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-fuchsia-100/40 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-white/60 mb-1.5">Gmail App Password (16 digit)</label>
-                  <input
-                    type="password"
-                    value={gmailAppPassword}
-                    onChange={(e) => setGmailAppPassword(e.target.value)}
-                    placeholder="xxxx xxxx xxxx xxxx"
-                    className="w-full h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-fuchsia-100/40 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
-                  />
-                </div>
-                <div className="flex flex-wrap gap-2 pt-2">
-                  <button
-                    onClick={saveGmailSettings}
-                    disabled={loading}
-                    className="h-10 px-5 rounded-xl text-white text-sm font-semibold bg-fuchsia-600 hover:bg-fuchsia-500 disabled:opacity-60 transition-colors"
-                  >
-                    Simpan Gmail
-                  </button>
-                  <button
-                    onClick={onTestImap}
-                    disabled={loading}
-                    className="h-10 px-5 rounded-xl bg-white/10 text-white text-sm font-semibold hover:bg-white/20 disabled:opacity-60 border border-white/10 transition-colors"
-                  >
-                    Test Koneksi IMAP
-                  </button>
-                </div>
-                {testResult && (
-                  <div className={`mt-2 p-3 rounded-xl text-xs font-medium border ${
-                    testResult.ok ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-200' : 'bg-rose-500/10 border-rose-500/20 text-rose-200'
-                  }`}>
-                    {testResult.ok ? (
-                      <div className="flex items-center gap-2">
-                        <span>✅ {testResult.message}</span>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col gap-1">
-                        <span className="font-bold">❌ Test Gagal:</span>
-                        <span className="opacity-90">{testResult.error}</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
             </div>
 
             <div className="mb-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
