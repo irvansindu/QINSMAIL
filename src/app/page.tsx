@@ -20,13 +20,13 @@ interface Email {
 
 export default function Home() {
   const [email, setEmail] = useState(''); // login part
-  const [domain, setDomain] = useState(''); // with leading @ for display
   const [domains, setDomains] = useState<string[]>(DEFAULT_DOMAINS);
   const [selectedDomain, setSelectedDomain] = useState(''); // selected domain
+  const domain = selectedDomain ? `@${selectedDomain}` : ''; // computed display domain
   const [domainMenuOpen, setDomainMenuOpen] = useState(false);
   const domainMenuRef = useRef<HTMLDivElement | null>(null);
-  const [apiLogin, setApiLogin] = useState(''); // unused with ImprovMX store but kept for UI
-  const [apiDomain, setApiDomain] = useState('');
+  const [apiLogin, setApiLogin] = useState(''); 
+  const apiDomain = selectedDomain; // use selectedDomain directly
   const [emails, setEmails] = useState<Email[]>([]);
   const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
   const [loading, setLoading] = useState(false);
@@ -39,7 +39,6 @@ export default function Home() {
   const [linkCopied, setLinkCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
-  const [prefilledFromLink, setPrefilledFromLink] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [lastSyncMs, setLastSyncMs] = useState<number | null>(null);
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
@@ -91,7 +90,7 @@ export default function Home() {
   // Helpers to persist read-state per address (username@domain)
   const currentAddress = (): string | null => {
     const addr = apiLogin && apiDomain ? `${apiLogin}@${apiDomain}`.toLowerCase() : `${email}${domain}`.toLowerCase();
-    if (!addr || !addr.includes('@')) return null;
+    if (!addr || !addr.includes('@') || addr.endsWith('@')) return null;
     return addr;
   };
 
@@ -244,10 +243,7 @@ export default function Home() {
               if (!domains.includes(dom)) dom = domains[0];
               setSelectedDomain(dom);
               setEmail(login);
-              setDomain(`@${dom}`);
               setApiLogin(login);
-              setApiDomain(dom);
-              setPrefilledFromLink(true);
               pushToast('Alamat dari tautan diterapkan', 'success');
               return;
             }
@@ -268,15 +264,13 @@ export default function Home() {
           
           setSelectedDomain(dom);
           setEmail(saved);
-          setDomain(`@${dom}`);
           setApiLogin(saved);
-          setApiDomain(dom);
           return;
         }
 
         // 3. Fallback: Generate Random
         if (!apiLogin || !apiDomain) {
-          generateEmail();
+          generateEmail(domains[0]);
         }
       } catch (err) {
         console.error('Initialization error:', err);
@@ -383,15 +377,15 @@ export default function Home() {
   };
 
   // Generate a random email under selected domain (via ImprovMX inbound)
-  const generateEmail = async () => {
+  const generateEmail = async (overrideDom?: string) => {
     setLoading(true);
     try {
       const randomLogin = Math.random().toString(36).slice(2, 10);
-      const dom = selectedDomain;
+      const dom = overrideDom || selectedDomain;
+      if (!dom) return;
+      setSelectedDomain(dom);
       setEmail(randomLogin);
-      setDomain(`@${dom}`);
       setApiLogin(randomLogin);
-      setApiDomain(dom);
       setCopied(false);
       setEmails([]);
       setSelectedEmail(null);
@@ -401,7 +395,7 @@ export default function Home() {
   };
 
   // Generate stronger random username (12–16 chars)
-  const generateStrong = async () => {
+  const generateStrong = async (overrideDom?: string) => {
     setLoading(true);
     try {
       const len = 12 + Math.floor(Math.random() * 5); // 12..16
@@ -410,11 +404,11 @@ export default function Home() {
       for (let i = 0; i < len; i++) {
         login += charset[Math.floor(Math.random() * charset.length)];
       }
-      const dom = selectedDomain;
+      const dom = overrideDom || selectedDomain;
+      if (!dom) return;
+      setSelectedDomain(dom);
       setEmail(login);
-      setDomain(`@${dom}`);
       setApiLogin(login);
-      setApiDomain(dom);
       setCopied(false);
       setEmails([]);
       setSelectedEmail(null);
@@ -608,10 +602,9 @@ export default function Home() {
   const applySavedAddress = (addr: string) => {
     const [login, dom] = addr.split('@');
     if (!login || !dom) return;
+    setSelectedDomain(dom);
     setEmail(login);
-    setDomain(`@${dom}`);
     setApiLogin(login);
-    setApiDomain(dom);
   };
 
   const deleteSavedAddress = (addr: string) => {
@@ -622,7 +615,7 @@ export default function Home() {
 
   // Ambil daftar pesan ketika alamat berubah
   useEffect(() => {
-    if (apiLogin && apiDomain) {
+    if (apiLogin && apiDomain && !apiDomain.startsWith('@')) {
       checkEmails();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -799,12 +792,8 @@ export default function Home() {
                             const newDomain = d;
                             setSelectedDomain(newDomain);
                             setDomainMenuOpen(false);
-                            if (email) {
-                              setDomain(`@${newDomain}`);
-                              setApiDomain(newDomain);
-                              setEmails([]);
-                              setSelectedEmail(null);
-                            }
+                            setEmails([]);
+                            setSelectedEmail(null);
                           }}
                           className={`w-full text-left px-3 py-2.5 text-sm transition-colors ${
                             d === selectedDomain
@@ -846,7 +835,7 @@ export default function Home() {
               <div className="hidden md:flex flex-col items-end mb-1.5">
                 <span className="text-xs text-white/60 mb-1 flex items-center gap-1.5"><Mail size={12} className="text-white/40" /> Alamat aktif</span>
                 <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-white/90 text-sm">
-                  {email && domain ? `${email}${domain}` : '—'}
+                  {currentAddress() || '—'}
                 </span>
               </div>
               <div className="flex gap-2 md:gap-3 flex-col md:flex-row md:flex-nowrap w-full md:w-auto">
@@ -888,14 +877,14 @@ export default function Home() {
                 {saved ? 'Tersimpan!' : 'Simpan'}
               </button>
               <button
-                onClick={generateStrong}
+                onClick={() => generateStrong()}
                 className="w-full md:w-auto h-11 flex items-center justify-center gap-2 px-3 md:px-4 bg-gradient-to-r from-purple-600/90 to-fuchsia-600/90 hover:from-purple-600 hover:to-fuchsia-600 text-white rounded-xl transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-fuchsia-400 backdrop-blur-sm"
                 title="Generate username kuat (12–16)"
               >
                 Generate Kuat
               </button>
               <button
-                onClick={generateEmail}
+                onClick={() => generateEmail()}
                 className="w-full md:w-auto h-11 flex items-center justify-center gap-2 px-3 md:px-4 backdrop-blur-sm bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-fuchsia-400"
               >
                 <RefreshCw size={16} />
@@ -1025,7 +1014,7 @@ export default function Home() {
                 <div className="text-center py-14 text-white/70 bg-transparent">
                   <Mail size={48} className="mx-auto mb-4 text-white/30" />
                   <p className="font-medium">Kotak masuk Anda kosong</p>
-                  <p className="text-sm mt-1">Email yang dikirim ke {email}{domain} akan tampil di sini</p>
+                  <p className="text-sm mt-1">Email yang dikirim ke {currentAddress() || 'alamat ini'} akan tampil di sini</p>
                 </div>
               )
             ) : (
