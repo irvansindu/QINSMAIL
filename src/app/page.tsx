@@ -9,7 +9,7 @@ import { CopyIcon, RefreshCw, Mail, Inbox, Trash2, Sparkles, Shield, Zap, Smartp
 const DEFAULT_DOMAINS = ['digitexa.biz.id', 'irvansindu.online', 'irvanmail.store', 'irvanstore.web.id', 'zemio.biz.id', 'zitemo.biz.id', 'irvantra.web.id', 'fivanstore.my.id', 'itemku.biz.id', 'fivanstore.shop', 'docverter.web.id', 'premiuminaja.biz.id', 'capcutinaja.biz.id', 'capcuters.web.id'];
 
 interface Email {
-  id: number;
+  id: string | number;
   from: string;
   subject: string;
   date: string;
@@ -94,19 +94,19 @@ export default function Home() {
     return addr;
   };
 
-  const loadReadIds = (addr: string | null): Set<number> => {
-    if (!addr) return new Set<number>();
+  const loadReadIds = (addr: string | null): Set<string | number> => {
+    if (!addr) return new Set<string | number>();
     try {
       const raw = localStorage.getItem(`readState:${addr}`);
-      if (!raw) return new Set<number>();
-      const arr = JSON.parse(raw) as number[];
-      return new Set<number>(Array.isArray(arr) ? arr : []);
+      if (!raw) return new Set<string | number>();
+      const arr = JSON.parse(raw) as (string | number)[];
+      return new Set<string | number>(Array.isArray(arr) ? arr : []);
     } catch {
-      return new Set<number>();
+      return new Set<string | number>();
     }
   };
 
-  const saveReadIds = (ids: Set<number>, addr: string | null) => {
+  const saveReadIds = (ids: Set<string | number>, addr: string | null) => {
     if (!addr) return;
     try {
       localStorage.setItem(`readState:${addr}` , JSON.stringify(Array.from(ids)));
@@ -115,7 +115,7 @@ export default function Home() {
 
   // Fallback: some backends may return unstable IDs or varying timestamps.
   // Use a stable key based on from + normalized subject only.
-  const messageKey = (m: { from: string; subject: string; date: string; id: number }): string => {
+  const messageKey = (m: { from: string; subject: string; date: string; id: string | number }): string => {
     const from = (m.from||'').toLowerCase();
     const subjRaw = (m.subject||'').toLowerCase();
     // normalize subject: remove digits and extra spaces to avoid OTP/code differences
@@ -463,7 +463,7 @@ export default function Home() {
     const showSpinner = emails.length === 0; // only show skeleton on first load
     try {
       if (showSpinner) setLoading(true);
-      interface ApiInboxItem { id: number; from: string; subject: string; date: string; text: string; html: string }
+      interface ApiInboxItem { id: string | number; from: string; subject: string; date: string; text: string; html: string }
       const res = await axios.get<{ok:boolean; data:ApiInboxItem[]; error?:string}>(
         `/api/inbox?to=${encodeURIComponent(full)}`
       );
@@ -486,7 +486,7 @@ export default function Home() {
       const addrNow = currentAddress();
       const storedRead = loadReadIds(addrNow);
       const storedKeys = loadReadKeys(addrNow);
-      const prevIds = new Set(emails.map(e => e.id));
+      const prevIds = new Set<string | number>(emails.map(e => e.id));
       // Only count as "new" if not seen in current state AND not already marked read previously (by id or key)
       const newOnes = list.filter(m => !prevIds.has(m.id) && !storedRead.has(m.id) && !storedKeys.has(messageKey(m)));
       if (newOnes.length > 0) {
@@ -550,7 +550,7 @@ export default function Home() {
   // (Removed) Manual reload — auto refresh runs every 5s.
 
   // Delete locally (1secmail public API tidak menyediakan delete)
-  const deleteEmail = (id: number) => {
+  const deleteEmail = (id: string | number) => {
     setEmails(prev => prev.filter(email => email.id !== id));
     if (selectedEmail && selectedEmail.id === id) {
       setSelectedEmail(null);
@@ -561,7 +561,7 @@ export default function Home() {
     setEmails(prev => prev.map(e => ({ ...e, read: true })));
     setNewCount(0);
     const addr = currentAddress();
-    const allIds = new Set<number>(emails.map(e => e.id));
+    const allIds = new Set<string | number>(emails.map(e => e.id));
     const allKeys = new Set<string>(emails.map(e => messageKey(e)));
     saveReadIds(allIds, addr);
     saveReadKeys(allKeys, addr);

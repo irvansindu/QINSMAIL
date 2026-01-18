@@ -3,14 +3,10 @@ import path from 'path';
 
 export type AppSettings = {
   accessGateEnabled: boolean;
-  gmailUser: string;
-  gmailAppPassword: string;
 };
 
 const DEFAULT_SETTINGS: AppSettings = {
   accessGateEnabled: true,
-  gmailUser: '',
-  gmailAppPassword: '',
 };
 
 const KV_KEY = 'qinsmail:settings';
@@ -76,8 +72,6 @@ export async function getSettings(): Promise<AppSettings> {
           typeof parsed?.accessGateEnabled === 'boolean'
             ? parsed.accessGateEnabled
             : DEFAULT_SETTINGS.accessGateEnabled,
-        gmailUser: typeof parsed?.gmailUser === 'string' ? parsed.gmailUser : DEFAULT_SETTINGS.gmailUser,
-        gmailAppPassword: typeof parsed?.gmailAppPassword === 'string' ? parsed.gmailAppPassword : DEFAULT_SETTINGS.gmailAppPassword,
       };
     } catch {
       await kvSet(KV_KEY, JSON.stringify(DEFAULT_SETTINGS));
@@ -94,8 +88,6 @@ export async function getSettings(): Promise<AppSettings> {
         typeof parsed?.accessGateEnabled === 'boolean'
           ? parsed.accessGateEnabled
           : DEFAULT_SETTINGS.accessGateEnabled,
-      gmailUser: typeof parsed?.gmailUser === 'string' ? parsed.gmailUser : DEFAULT_SETTINGS.gmailUser,
-      gmailAppPassword: typeof parsed?.gmailAppPassword === 'string' ? parsed.gmailAppPassword : DEFAULT_SETTINGS.gmailAppPassword,
     };
   } catch {
     return { ...DEFAULT_SETTINGS };
@@ -109,8 +101,6 @@ export async function updateSettings(patch: Partial<AppSettings>): Promise<AppSe
       typeof patch.accessGateEnabled === 'boolean'
         ? patch.accessGateEnabled
         : current.accessGateEnabled,
-    gmailUser: typeof patch.gmailUser === 'string' ? patch.gmailUser : current.gmailUser,
-    gmailAppPassword: typeof patch.gmailAppPassword === 'string' ? patch.gmailAppPassword : current.gmailAppPassword,
   };
   if (hasKv()) {
     await kvSet(KV_KEY, JSON.stringify(next));

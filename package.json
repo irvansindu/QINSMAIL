@@ -12,6 +12,7 @@
     "@heroicons/react": "^2.2.0",
     "axios": "^1.13.2",
     "better-sqlite3": "^12.4.1",
+    "googleapis": "^170.1.0",
     "imapflow": "^1.1.1",
     "lucide-react": "^0.553.0",
     "mailparser": "^3.9.0",

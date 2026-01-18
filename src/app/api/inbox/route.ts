@@ -1,24 +1,23 @@
 import { NextResponse } from 'next/server';
 import { listEmails } from '@/lib/inbox';
-import { getSettings } from '@/lib/settings';
 
 export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const to = (url.searchParams.get('to') || '').toLowerCase();
   if (!to) return NextResponse.json({ ok: false, error: 'Missing to' }, { status: 400 });
-
-  const settings = await getSettings();
-  const user = settings.gmailUser || process.env.GMAIL_USER;
-  const pass = settings.gmailAppPassword || process.env.GMAIL_APP_PASSWORD;
-  if (user && pass) {
+ 
+  // If Gmail API is configured, proxy to the Gmail-backed route
+  const clientId = process.env.GMAIL_CLIENT_ID;
+  const clientSecret = process.env.GMAIL_CLIENT_SECRET;
+  const refreshToken = process.env.GMAIL_REFRESH_TOKEN;
+  
+  if (clientId && clientSecret && refreshToken) {
     try {
       const origin = new URL(req.url).origin;
       const res = await fetch(`${origin}/api/inbox-gmail?to=${encodeURIComponent(to)}`, { cache: 'no-store' });
       const json = await res.json();
-      // Normalize to 200; carry ok/error so clients can decide without transport error
       return NextResponse.json(json, { status: 200 });
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'proxy-failed';
