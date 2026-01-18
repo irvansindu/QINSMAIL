@@ -6,7 +6,7 @@ import Image from 'next/image';
 import QRCode from 'qrcode';
 import { CopyIcon, RefreshCw, Mail, Inbox, Trash2, Sparkles, Shield, Zap, Smartphone } from 'lucide-react';
 
-const DEFAULT_DOMAINS = ['digitexa.biz.id', 'irvansindu.online', 'irvanmail.store', 'irvanstore.web.id', 'zemio.biz.id', 'zitemo.biz.id', 'irvantra.web.id', 'fivanstore.my.id', 'itemku.biz.id', 'fivanstore.shop', 'docverter.web.id', 'premiuminaja.biz.id', 'capcutinaja.biz.id', 'capcuters.web.id'];
+const DEFAULT_DOMAINS: string[] = [];
 
 interface Email {
   id: string | number;
@@ -22,7 +22,7 @@ export default function Home() {
   const [email, setEmail] = useState(''); // login part
   const [domain, setDomain] = useState(''); // with leading @ for display
   const [domains, setDomains] = useState<string[]>(DEFAULT_DOMAINS);
-  const [selectedDomain, setSelectedDomain] = useState('digitexa.biz.id'); // selected domain
+  const [selectedDomain, setSelectedDomain] = useState(''); // selected domain
   const [domainMenuOpen, setDomainMenuOpen] = useState(false);
   const domainMenuRef = useRef<HTMLDivElement | null>(null);
   const [apiLogin, setApiLogin] = useState(''); // unused with ImprovMX store but kept for UI
@@ -236,12 +236,12 @@ export default function Home() {
         dom = (parts[1] || '').trim();
       } else {
         login = value.replace(/[^a-z0-9._-]/g, '').replace(/^[^a-z0-9]+/, '');
-        dom = 'digitexa.biz.id';
+        dom = domains.length > 0 ? domains[0] : '';
       }
-      if (!login) return;
+      if (!login || !dom) return;
       // fallback if domain not allowed
-      if (!domains.includes(dom)) {
-        dom = 'digitexa.biz.id';
+      if (domains.length > 0 && !domains.includes(dom)) {
+        dom = domains[0];
       }
 
       setSelectedDomain(dom);
@@ -596,11 +596,12 @@ export default function Home() {
       if (savedAddrs) {
         try { setSavedList(JSON.parse(savedAddrs)); } catch {}
       }
-      if (savedDomain && domains.includes(savedDomain)) {
+      if (savedDomain && (domains.length === 0 || domains.includes(savedDomain))) {
         setSelectedDomain(savedDomain);
       }
       if (saved) {
-        const dom = savedDomain || 'digitexa.biz.id';
+        const dom = savedDomain || (domains.length > 0 ? domains[0] : '');
+        if (!dom) return;
         setEmail(saved);
         setDomain(`@${dom}`);
         setApiLogin(saved);
