@@ -1042,6 +1042,7 @@ export default function Home() {
                   <Mail size={48} className="mx-auto mb-4 text-white/30" />
                   <p className="font-medium">Kotak masuk Anda kosong</p>
                   <p className="text-sm mt-1">Email yang dikirim ke {currentAddress() || 'alamat ini'} akan tampil di sini</p>
+                  <p className="text-[10px] mt-4 opacity-40 italic">Semua pesan otomatis dihapus setelah 24 jam</p>
                 </div>
               )
             ) : (

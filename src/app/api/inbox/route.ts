@@ -12,11 +12,12 @@ export async function GET(req: Request) {
   const clientId = process.env.GMAIL_CLIENT_ID;
   const clientSecret = process.env.GMAIL_CLIENT_SECRET;
   const refreshToken = process.env.GMAIL_REFRESH_TOKEN;
+  const retentionHours = Number(process.env.FREE_RETENTION_HOURS || 24);
   
   if (clientId && clientSecret && refreshToken) {
     try {
       const origin = new URL(req.url).origin;
-      const res = await fetch(`${origin}/api/inbox-gmail?to=${encodeURIComponent(to)}`, { cache: 'no-store' });
+      const res = await fetch(`${origin}/api/inbox-gmail?to=${encodeURIComponent(to)}&hours=${retentionHours}`, { cache: 'no-store' });
       const json = await res.json();
       return NextResponse.json(json, { status: 200 });
     } catch (e: unknown) {
@@ -27,7 +28,6 @@ export async function GET(req: Request) {
   }
 
   // Fallback: local store
-  const retentionHours = Number(process.env.FREE_RETENTION_HOURS || 24);
   const data = await listEmails(to, retentionHours);
   return NextResponse.json({ ok: true, data });
 }

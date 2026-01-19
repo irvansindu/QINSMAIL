@@ -16,10 +16,12 @@ export interface InboxItem {
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const to = (url.searchParams.get('to') || '').toLowerCase();
+  const hours = Number(url.searchParams.get('hours') || 24);
   if (!to) return NextResponse.json({ ok: false, error: 'Missing to' }, { status: 400 });
 
   try {
     const gmail = getGmailClient();
+    const cutoff = new Date(Date.now() - hours * 60 * 60 * 1000);
     
     // Search for messages sent to the specific address
     const listRes = await gmail.users.messages.list({
@@ -37,16 +39,37 @@ export async function GET(req: Request) {
       const msg = await gmail.users.messages.get({
         userId: 'me',
         id: msgInfo.id,
+        format: 'metadata',
+        metadataHeaders: ['From', 'Subject', 'Date'],
+      });
+
+      const headers = msg.data.payload?.headers || [];
+      const dateStr = headers.find(h => h.name?.toLowerCase() === 'date')?.value || '';
+      const dateIso = dateStr ? new Date(dateStr).toISOString() : new Date().toISOString();
+      const msgDate = new Date(dateIso);
+
+      // Skip and auto-delete if older than retention hours
+      if (msgDate < cutoff) {
+        try {
+          await gmail.users.messages.delete({ userId: 'me', id: msgInfo.id });
+        } catch (delErr) {
+          console.error(`Failed to auto-delete expired message ${msgInfo.id}:`, delErr);
+        }
+        continue;
+      }
+
+      // Fetch full content for valid messages
+      const fullMsg = await gmail.users.messages.get({
+        userId: 'me',
+        id: msgInfo.id,
         format: 'full',
       });
 
-      const payload = msg.data.payload as gmail_v1.Schema$MessagePart;
-      const headers = payload?.headers || [];
+      const payload = fullMsg.data.payload as gmail_v1.Schema$MessagePart;
+      const fullHeaders = payload?.headers || [];
       
-      const from = headers.find(h => h.name?.toLowerCase() === 'from')?.value || '';
-      const subject = headers.find(h => h.name?.toLowerCase() === 'subject')?.value || '(no subject)';
-      const dateStr = headers.find(h => h.name?.toLowerCase() === 'date')?.value || '';
-      const dateIso = dateStr ? new Date(dateStr).toISOString() : new Date().toISOString();
+      const from = fullHeaders.find(h => h.name?.toLowerCase() === 'from')?.value || '';
+      const subject = fullHeaders.find(h => h.name?.toLowerCase() === 'subject')?.value || '(no subject)';
 
       let text = '';
       let html = '';
