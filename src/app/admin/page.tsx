@@ -10,6 +10,14 @@ type SettingsResp = {
     accessGateEnabled?: boolean;
     maintenanceMode?: boolean;
   };
+  stats?: {
+    totalDomains: number;
+    maintenanceMode: boolean;
+    accessGateEnabled: boolean;
+    gmailApiStatus: string;
+    storageType: string;
+    nodeVersion: string;
+  };
   error?: string;
 };
 
@@ -23,6 +31,7 @@ export default function AdminPage() {
   const [maintenanceMode, setMaintenanceMode] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [stats, setStats] = useState<SettingsResp['stats'] | null>(null);
 
   const headers = useMemo(() => {
     const h: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -37,9 +46,10 @@ export default function AdminPage() {
       const h: Record<string, string> = { 'Content-Type': 'application/json' };
       const effective = (overrideToken ?? token).trim();
       if (effective) h['x-admin-token'] = effective;
-      const [resDomains, resSettings] = await Promise.all([
+      const [resDomains, resSettings, resStats] = await Promise.all([
         fetch('/api/admin/domains', { headers: h }),
         fetch('/api/admin/settings', { headers: h }),
+        fetch('/api/admin/stats', { headers: h }),
       ]);
 
       const jsonDomains = (await resDomains.json().catch(() => ({ ok: false }))) as ApiResp;
@@ -51,6 +61,11 @@ export default function AdminPage() {
         const s = jsonSettings.settings;
         if (typeof s?.accessGateEnabled === 'boolean') setAccessGateEnabled(s.accessGateEnabled);
         if (typeof s?.maintenanceMode === 'boolean') setMaintenanceMode(s.maintenanceMode);
+      }
+
+      const jsonStats = (await resStats.json().catch(() => ({ ok: false }))) as SettingsResp;
+      if (jsonStats.ok && jsonStats.stats) {
+        setStats(jsonStats.stats);
       }
 
       setAuthed(true);
@@ -197,6 +212,32 @@ export default function AdminPage() {
           </div>
           <Link href="/" className="text-sm font-medium text-fuchsia-200 hover:text-fuchsia-100">Kembali</Link>
         </div>
+
+        {authed && stats && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
+              <div className="text-[10px] uppercase tracking-wider text-fuchsia-200/50 mb-1">Total Domain</div>
+              <div className="text-xl font-bold text-white">{stats.totalDomains}</div>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
+              <div className="text-[10px] uppercase tracking-wider text-fuchsia-200/50 mb-1">Gmail API</div>
+              <div className={`text-sm font-semibold ${stats.gmailApiStatus === 'Connected' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                {stats.gmailApiStatus}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
+              <div className="text-[10px] uppercase tracking-wider text-fuchsia-200/50 mb-1">Penyimpanan</div>
+              <div className="text-sm font-semibold text-white truncate">{stats.storageType}</div>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
+              <div className="text-[10px] uppercase tracking-wider text-fuchsia-200/50 mb-1">Status Sistem</div>
+              <div className="flex items-center gap-1.5 text-sm font-semibold text-emerald-400">
+                <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Online
+              </div>
+            </div>
+          </div>
+        )}
 
         {!authed ? (
           <div className="rounded-3xl p-6 sm:p-7 border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_30px_80px_rgba(0,0,0,0.55)]">
