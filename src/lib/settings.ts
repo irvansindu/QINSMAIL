@@ -3,10 +3,12 @@ import path from 'path';
 
 export type AppSettings = {
   accessGateEnabled: boolean;
+  maintenanceMode: boolean;
 };
 
 const DEFAULT_SETTINGS: AppSettings = {
   accessGateEnabled: true,
+  maintenanceMode: false,
 };
 
 const KV_KEY = 'qinsmail:settings';
@@ -72,6 +74,10 @@ export async function getSettings(): Promise<AppSettings> {
           typeof parsed?.accessGateEnabled === 'boolean'
             ? parsed.accessGateEnabled
             : DEFAULT_SETTINGS.accessGateEnabled,
+        maintenanceMode:
+          typeof parsed?.maintenanceMode === 'boolean'
+            ? parsed.maintenanceMode
+            : DEFAULT_SETTINGS.maintenanceMode,
       };
     } catch {
       await kvSet(KV_KEY, JSON.stringify(DEFAULT_SETTINGS));
@@ -88,6 +94,10 @@ export async function getSettings(): Promise<AppSettings> {
         typeof parsed?.accessGateEnabled === 'boolean'
           ? parsed.accessGateEnabled
           : DEFAULT_SETTINGS.accessGateEnabled,
+      maintenanceMode:
+        typeof parsed?.maintenanceMode === 'boolean'
+          ? parsed.maintenanceMode
+          : DEFAULT_SETTINGS.maintenanceMode,
     };
   } catch {
     return { ...DEFAULT_SETTINGS };
@@ -101,6 +111,10 @@ export async function updateSettings(patch: Partial<AppSettings>): Promise<AppSe
       typeof patch.accessGateEnabled === 'boolean'
         ? patch.accessGateEnabled
         : current.accessGateEnabled,
+    maintenanceMode:
+      typeof patch.maintenanceMode === 'boolean'
+        ? patch.maintenanceMode
+        : current.maintenanceMode,
   };
   if (hasKv()) {
     await kvSet(KV_KEY, JSON.stringify(next));

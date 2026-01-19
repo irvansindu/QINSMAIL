@@ -34,8 +34,11 @@ export async function GET(request: Request) {
 export async function PATCH(request: Request) {
   if (!ensureAuth(request)) return unauthorized();
   try {
-    const body = (await request.json()) as { accessGateEnabled?: boolean };
-    const settings = await updateSettings({ accessGateEnabled: body?.accessGateEnabled });
+    const body = (await request.json()) as { accessGateEnabled?: boolean; maintenanceMode?: boolean };
+    const settings = await updateSettings({ 
+      accessGateEnabled: body?.accessGateEnabled,
+      maintenanceMode: body?.maintenanceMode 
+    });
     return NextResponse.json({ ok: true, settings });
   } catch {
     return NextResponse.json({ ok: false, error: 'bad-request' }, { status: 400 });
