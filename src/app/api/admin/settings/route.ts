@@ -35,9 +35,9 @@ export async function PATCH(request: Request) {
   if (!ensureAuth(request)) return unauthorized();
   try {
     const body = (await request.json()) as { accessGateEnabled?: boolean; maintenanceMode?: boolean };
-    const settings = await updateSettings({ 
+    const settings = await updateSettings({
       accessGateEnabled: body?.accessGateEnabled,
-      maintenanceMode: body?.maintenanceMode 
+      maintenanceMode: body?.maintenanceMode,
     });
     return NextResponse.json({ ok: true, settings });
   } catch {

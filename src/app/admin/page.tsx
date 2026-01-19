@@ -106,6 +106,27 @@ export default function AdminPage() {
     }
   };
 
+  const setMaintenance = async (enabled: boolean) => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ maintenanceMode: enabled }),
+      });
+      const json = (await res.json().catch(() => ({ ok: false }))) as SettingsResp;
+      if (!json.ok) throw new Error(json.error || 'failed');
+      const val = json.settings?.maintenanceMode;
+      if (typeof val === 'boolean') setMaintenanceMode(val);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'failed';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const onAdd = async () => {
     if (!domainInput.trim()) return;
     setLoading(true);
@@ -120,27 +141,6 @@ export default function AdminPage() {
       if (!json.ok) throw new Error(json.error || 'failed');
       setDomains(json.domains || []);
       setDomainInput('');
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'failed';
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const setMaintenance = async (enabled: boolean) => {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await fetch('/api/admin/settings', {
-        method: 'PATCH',
-        headers,
-        body: JSON.stringify({ maintenanceMode: enabled }),
-      });
-      const json = (await res.json().catch(() => ({ ok: false }))) as SettingsResp;
-      if (!json.ok) throw new Error(json.error || 'failed');
-      const val = json.settings?.maintenanceMode;
-      if (typeof val === 'boolean') setMaintenanceMode(val);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'failed';
       setError(msg);
@@ -211,7 +211,7 @@ export default function AdminPage() {
               <button
                 onClick={onLogin}
                 disabled={loading}
-                className="h-11 px-5 rounded-xl text-white font-semibold disabled:opacity-60 bg-linear-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500 shadow-[0_12px_30px_rgba(236,72,153,0.25)]"
+                className="h-11 px-5 rounded-xl text-white font-semibold disabled:opacity-60 bg-gradient-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500 shadow-[0_12px_30px_rgba(236,72,153,0.25)]"
               >
                 Masuk
               </button>
@@ -238,32 +238,6 @@ export default function AdminPage() {
             <div className="mb-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <div className="text-sm text-white">Maintenance Mode</div>
-                  <div className="text-xs text-white/60">ON = halaman depan akan ditutup sementara</div>
-                </div>
-                <button
-                  onClick={() => setMaintenance(!maintenanceMode)}
-                  disabled={loading}
-                  className={`relative h-10 w-[110px] rounded-full text-sm font-bold tracking-wide transition disabled:opacity-60 border border-white/10 shadow-inner ${
-                    maintenanceMode
-                      ? 'bg-linear-to-r from-amber-500 to-orange-600 text-white'
-                      : 'bg-white/5 text-white/80 hover:bg-white/10'
-                  }`}
-                >
-                  <span
-                    className={`absolute top-1 left-1 h-8 w-8 rounded-full bg-white/90 shadow transition-transform ${
-                      maintenanceMode ? 'translate-x-[68px]' : 'translate-x-0'
-                    }`}
-                    aria-hidden="true"
-                  />
-                  <span className="relative z-10">{maintenanceMode ? 'ON' : 'OFF'}</span>
-                </button>
-              </div>
-            </div>
-
-            <div className="mb-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-              <div className="flex items-center justify-between gap-4">
-                <div>
                   <div className="text-sm text-white">Kode akses website</div>
                   <div className="text-xs text-white/60">ON = pengunjung wajib memasukkan kode</div>
                 </div>
@@ -272,7 +246,7 @@ export default function AdminPage() {
                   disabled={loading}
                   className={`relative h-10 w-[110px] rounded-full text-sm font-bold tracking-wide transition disabled:opacity-60 border border-white/10 shadow-inner ${
                     accessGateEnabled
-                      ? 'bg-linear-to-r from-fuchsia-600 via-pink-600 to-rose-600 text-white'
+                      ? 'bg-gradient-to-r from-fuchsia-600 via-pink-600 to-rose-600 text-white'
                       : 'bg-white/5 text-white/80 hover:bg-white/10'
                   }`}
                 >
@@ -287,6 +261,32 @@ export default function AdminPage() {
               </div>
             </div>
 
+            <div className="mb-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <div className="text-sm text-white">Maintenance Mode</div>
+                  <div className="text-xs text-white/60">ON = Halaman depan menampilkan pesan perbaikan</div>
+                </div>
+                <button
+                  onClick={() => setMaintenance(!maintenanceMode)}
+                  disabled={loading}
+                  className={`relative h-10 w-[110px] rounded-full text-sm font-bold tracking-wide transition disabled:opacity-60 border border-white/10 shadow-inner ${
+                    maintenanceMode
+                      ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white'
+                      : 'bg-white/5 text-white/80 hover:bg-white/10'
+                  }`}
+                >
+                  <span
+                    className={`absolute top-1 left-1 h-8 w-8 rounded-full bg-white/90 shadow transition-transform ${
+                      maintenanceMode ? 'translate-x-[68px]' : 'translate-x-0'
+                    }`}
+                    aria-hidden="true"
+                  />
+                  <span className="relative z-10">{maintenanceMode ? 'ON' : 'OFF'}</span>
+                </button>
+              </div>
+            </div>
+
             <div className="flex gap-2">
               <input
                 value={domainInput}
@@ -297,7 +297,7 @@ export default function AdminPage() {
               <button
                 onClick={onAdd}
                 disabled={loading}
-                className="h-11 px-4 rounded-xl text-white font-semibold disabled:opacity-60 bg-linear-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500"
+                className="h-11 px-4 rounded-xl text-white font-semibold disabled:opacity-60 bg-gradient-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500"
               >
                 Add
               </button>
