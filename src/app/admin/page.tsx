@@ -211,7 +211,7 @@ export default function AdminPage() {
               <button
                 onClick={onLogin}
                 disabled={loading}
-                className="h-11 px-5 rounded-xl text-white font-semibold disabled:opacity-60 bg-gradient-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500 shadow-[0_12px_30px_rgba(236,72,153,0.25)]"
+                className="h-11 px-5 rounded-xl text-white font-semibold disabled:opacity-60 bg-linear-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500 shadow-[0_12px_30px_rgba(236,72,153,0.25)]"
               >
                 Masuk
               </button>
@@ -247,7 +247,7 @@ export default function AdminPage() {
                     disabled={loading}
                     className={`relative h-9 w-[80px] rounded-full text-xs font-bold tracking-wide transition disabled:opacity-60 border border-white/10 shadow-inner ${
                       accessGateEnabled
-                        ? 'bg-gradient-to-r from-fuchsia-600 via-pink-600 to-rose-600 text-white'
+                        ? 'bg-linear-to-r from-fuchsia-600 via-pink-600 to-rose-600 text-white'
                         : 'bg-white/5 text-white/80 hover:bg-white/10'
                     }`}
                   >
@@ -273,7 +273,7 @@ export default function AdminPage() {
                     disabled={loading}
                     className={`relative h-9 w-[80px] rounded-full text-xs font-bold tracking-wide transition disabled:opacity-60 border border-white/10 shadow-inner ${
                       maintenanceMode
-                        ? 'bg-gradient-to-r from-amber-600 to-orange-600 text-white'
+                        ? 'bg-linear-to-r from-amber-600 to-orange-600 text-white'
                         : 'bg-white/5 text-white/80 hover:bg-white/10'
                     }`}
                   >
@@ -299,7 +299,7 @@ export default function AdminPage() {
               <button
                 onClick={onAdd}
                 disabled={loading}
-                className="h-11 px-4 rounded-xl text-white font-semibold disabled:opacity-60 bg-gradient-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500"
+                className="h-11 px-4 rounded-xl text-white font-semibold disabled:opacity-60 bg-linear-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500"
               >
                 Add
               </button>

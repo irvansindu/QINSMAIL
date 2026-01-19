@@ -710,7 +710,7 @@ export default function Home() {
   return (
     <main className="relative min-h-screen overflow-hidden p-4 md:p-8 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] bg-[#0b0613]">
       {maintenanceMode ? (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0b0613] p-6 text-center">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-[#0b0613] p-6 text-center">
           <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(900px 450px at 50% 0%, rgba(236,72,153,0.3), transparent 60%), radial-gradient(700px 420px at 85% 25%, rgba(168,85,247,0.25), transparent 55%)' }} aria-hidden="true" />
           <div className="relative max-w-md w-full">
             <div className="mx-auto w-20 h-20 rounded-3xl bg-amber-500/10 text-amber-500 flex items-center justify-center mb-6 border border-amber-500/20 shadow-[0_0_30px_rgba(245,158,11,0.1)]">
@@ -754,7 +754,7 @@ export default function Home() {
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-3 text-xs bg-fuchsia-600/10 text-fuchsia-200 ring-1 ring-fuchsia-500/20">
             <Sparkles size={12} /> Cepat, aman, dan sementara
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-3 bg-gradient-to-r from-fuchsia-300 via-pink-300 to-rose-300 bg-clip-text text-transparent">Email Sementara</h1>
+          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-3 bg-linear-to-r from-fuchsia-300 via-pink-300 to-rose-300 bg-clip-text text-transparent">Email Sementara</h1>
           <p className="text-white/70 text-sm sm:text-base max-w-2xl mx-auto">Buat alamat email sekali pakai untuk verifikasi, uji coba layanan, atau melindungi privasi Anda.</p>
         </header>
 
@@ -789,7 +789,7 @@ export default function Home() {
           <div className="flex flex-col gap-4 md:gap-6 md:grid md:grid-cols-[1fr_auto] md:items-end mb-6">
             <div className="flex-1">
               <div className="mb-4">
-                <label className="block text-sm font-medium text-fuchsia-100/80 mb-2 flex items-center gap-1.5">
+                <label className="text-sm font-medium text-fuchsia-100/80 mb-2 flex items-center gap-1.5">
                   <Inbox size={14} className="text-white/60" />
                   Domain
                 </label>
@@ -869,7 +869,7 @@ export default function Home() {
               <button
                 onClick={handleCopy}
                 className={`w-full md:w-auto h-11 flex items-center justify-center gap-2 px-3 md:px-4 rounded-lg backdrop-blur-sm ${
-                  copied ? 'bg-green-500' : 'bg-gradient-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500'
+                  copied ? 'bg-green-500' : 'bg-linear-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500'
                 } text-white transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-400`}
               >
                 <CopyIcon size={16} />
@@ -878,7 +878,7 @@ export default function Home() {
               <button
                 onClick={handleCopyLink}
                 className={`w-full md:w-auto h-11 flex items-center justify-center gap-2 px-3 md:px-4 rounded-lg backdrop-blur-sm ${
-                  linkCopied ? 'bg-green-500' : 'bg-gradient-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500'
+                  linkCopied ? 'bg-green-500' : 'bg-linear-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500'
                 } text-white transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-400`}
                 title="Salin tautan langsung ke alamat ini"
               >
@@ -905,7 +905,7 @@ export default function Home() {
               </button>
               <button
                 onClick={() => generateStrong()}
-                className="w-full md:w-auto h-11 flex items-center justify-center gap-2 px-3 md:px-4 bg-gradient-to-r from-purple-600/90 to-fuchsia-600/90 hover:from-purple-600 hover:to-fuchsia-600 text-white rounded-xl transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-fuchsia-400 backdrop-blur-sm"
+                className="w-full md:w-auto h-11 flex items-center justify-center gap-2 px-3 md:px-4 bg-linear-to-r from-purple-600/90 to-fuchsia-600/90 hover:from-purple-600 hover:to-fuchsia-600 text-white rounded-xl transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-fuchsia-400 backdrop-blur-sm"
                 title="Generate username kuat (12–16)"
               >
                 Generate Kuat
@@ -986,7 +986,7 @@ export default function Home() {
                 </p>
                 <button
                   onClick={() => setShowQR(false)}
-                  className="mt-2 px-4 py-2 rounded-xl text-white font-semibold bg-gradient-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500 shadow-sm"
+                  className="mt-2 px-4 py-2 rounded-xl text-white font-semibold bg-linear-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500 shadow-sm"
                 >
                   Tutup
                 </button>
@@ -1155,7 +1155,7 @@ export default function Home() {
         </footer>
       </div>
       {toasts.length > 0 && (
-        <div className="fixed bottom-4 right-4 z-[60] flex flex-col gap-2">
+        <div className="fixed bottom-4 right-4 z-60 flex flex-col gap-2">
           {toasts.map(t => (
             <div
               key={t.id}
@@ -1169,7 +1169,7 @@ export default function Home() {
         </div>
       )}
       {(accessChecking || (accessGateEnabled && !accessGranted)) && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center px-4 py-8 bg-[#0b0613]">
+        <div className="fixed inset-0 z-70 flex items-center justify-center px-4 py-8 bg-[#0b0613]">
           <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(900px 450px at 50% 0%, rgba(236,72,153,0.45), transparent 60%), radial-gradient(700px 420px at 85% 25%, rgba(168,85,247,0.40), transparent 55%)' }} aria-hidden="true" />
           <div className="relative w-full max-w-md rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl p-8 text-white">
             <div className="mx-auto w-14 h-14 rounded-2xl bg-fuchsia-500/15 text-fuchsia-200 flex items-center justify-center">
@@ -1204,7 +1204,7 @@ export default function Home() {
                   className={`w-full h-12 rounded-xl font-semibold transition-all shadow-lg ${
                     accessSubmitting
                       ? 'bg-fuchsia-500/40 text-white/80 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500 text-white'
+                      : 'bg-linear-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500 text-white'
                   }`}
                 >
                   {accessSubmitting ? 'Memeriksa...' : 'Masuk'}
