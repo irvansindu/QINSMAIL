@@ -149,16 +149,16 @@ export default function Home() {
       try {
         const res = await fetch('/api/settings', { cache: 'no-store' });
         const json = await res.json().catch(() => ({ ok: false }));
-        const settings = json?.settings;
-        if (settings) {
-          if (typeof settings.accessGateEnabled === 'boolean') {
-            setAccessGateEnabled(settings.accessGateEnabled);
-            if (!settings.accessGateEnabled) {
+        const s = json?.settings;
+        if (s) {
+          if (typeof s.accessGateEnabled === 'boolean') {
+            setAccessGateEnabled(s.accessGateEnabled);
+            if (!s.accessGateEnabled) {
               setAccessGranted(true);
             }
           }
-          if (typeof settings.maintenanceMode === 'boolean') {
-            setMaintenanceMode(settings.maintenanceMode);
+          if (typeof s.maintenanceMode === 'boolean') {
+            setMaintenanceMode(s.maintenanceMode);
           }
         }
       } catch {}
@@ -707,37 +707,29 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sseOn, email, domain, intervalMs]);
 
-  if (maintenanceMode) {
-    return (
-      <main className="relative min-h-screen overflow-hidden flex items-center justify-center p-4 bg-[#0b0613]">
-        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(900px 450px at 50% 0%, rgba(236,72,153,0.45), transparent 60%), radial-gradient(700px 420px at 85% 25%, rgba(168,85,247,0.40), transparent 55%)' }} aria-hidden="true" />
-        <div className="relative w-full max-w-md rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl p-10 text-center text-white">
-          <div className="mx-auto w-20 h-20 rounded-2xl bg-amber-500/15 text-amber-500 flex items-center justify-center mb-6 ring-1 ring-amber-500/20">
-            <RefreshCw size={40} className="animate-spin-slow" />
-          </div>
-          <h1 className="text-3xl font-bold mb-3 bg-gradient-to-r from-amber-200 to-orange-200 bg-clip-text text-transparent">Situs Sedang Diperbaiki</h1>
-          <p className="text-white/60 text-lg leading-relaxed">
-            Kami sedang melakukan pemeliharaan rutin untuk meningkatkan pengalaman Anda. Silakan kembali lagi nanti.
-          </p>
-          <div className="mt-8 pt-8 border-t border-white/10">
-            <p className="text-sm text-white/40 font-medium tracking-widest uppercase">QINZ STORE TEAM</p>
-          </div>
-        </div>
-        <style jsx global>{`
-          @keyframes spin-slow {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
-          .animate-spin-slow {
-            animation: spin-slow 4s linear infinite;
-          }
-        `}</style>
-      </main>
-    );
-  }
-
   return (
     <main className="relative min-h-screen overflow-hidden p-4 md:p-8 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] bg-[#0b0613]">
+      {maintenanceMode ? (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0b0613] p-6 text-center">
+          <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(900px 450px at 50% 0%, rgba(236,72,153,0.3), transparent 60%), radial-gradient(700px 420px at 85% 25%, rgba(168,85,247,0.25), transparent 55%)' }} aria-hidden="true" />
+          <div className="relative max-w-md w-full">
+            <div className="mx-auto w-20 h-20 rounded-3xl bg-amber-500/10 text-amber-500 flex items-center justify-center mb-6 border border-amber-500/20 shadow-[0_0_30px_rgba(245,158,11,0.1)]">
+              <RefreshCw size={40} className="animate-spin-slow" />
+            </div>
+            <h1 className="text-3xl font-bold text-white mb-3">Sistem Sedang Diperbarui</h1>
+            <p className="text-fuchsia-100/60 mb-8 leading-relaxed">
+              Kami sedang melakukan pemeliharaan rutin untuk meningkatkan layanan. Kami akan segera kembali!
+            </p>
+            <div className="text-xs font-medium uppercase tracking-[0.2em] text-fuchsia-400/80 mb-2">Estimasi Selesai</div>
+            <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white inline-block">
+              Segera Kembali
+            </div>
+            <div className="mt-12 text-sm text-white/40">
+              © 2025 <span className="text-fuchsia-300">QINZ STORE</span>
+            </div>
+          </div>
+        </div>
+      ) : null}
       <div
         className="pointer-events-none absolute inset-0 opacity-100"
         style={{

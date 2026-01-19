@@ -235,55 +235,57 @@ export default function AdminPage() {
               </button>
             </div>
 
-            <div className="mb-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <div className="text-sm text-white">Kode akses website</div>
-                  <div className="text-xs text-white/60">ON = pengunjung wajib memasukkan kode</div>
-                </div>
-                <button
-                  onClick={() => setGate(!accessGateEnabled)}
-                  disabled={loading}
-                  className={`relative h-10 w-[110px] rounded-full text-sm font-bold tracking-wide transition disabled:opacity-60 border border-white/10 shadow-inner ${
-                    accessGateEnabled
-                      ? 'bg-gradient-to-r from-fuchsia-600 via-pink-600 to-rose-600 text-white'
-                      : 'bg-white/5 text-white/80 hover:bg-white/10'
-                  }`}
-                >
-                  <span
-                    className={`absolute top-1 left-1 h-8 w-8 rounded-full bg-white/90 shadow transition-transform ${
-                      accessGateEnabled ? 'translate-x-[68px]' : 'translate-x-0'
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <div className="text-sm text-white">Kode akses</div>
+                    <div className="text-xs text-white/60">Gate Premium</div>
+                  </div>
+                  <button
+                    onClick={() => setGate(!accessGateEnabled)}
+                    disabled={loading}
+                    className={`relative h-9 w-[80px] rounded-full text-xs font-bold tracking-wide transition disabled:opacity-60 border border-white/10 shadow-inner ${
+                      accessGateEnabled
+                        ? 'bg-gradient-to-r from-fuchsia-600 via-pink-600 to-rose-600 text-white'
+                        : 'bg-white/5 text-white/80 hover:bg-white/10'
                     }`}
-                    aria-hidden="true"
-                  />
-                  <span className="relative z-10">{accessGateEnabled ? 'ON' : 'OFF'}</span>
-                </button>
+                  >
+                    <span
+                      className={`absolute top-0.5 left-0.5 h-7 w-7 rounded-full bg-white/90 shadow transition-transform ${
+                        accessGateEnabled ? 'translate-x-[42px]' : 'translate-x-0'
+                      }`}
+                      aria-hidden="true"
+                    />
+                    <span className="relative z-10">{accessGateEnabled ? 'ON' : 'OFF'}</span>
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <div className="mb-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <div className="text-sm text-white">Maintenance Mode</div>
-                  <div className="text-xs text-white/60">ON = Halaman depan menampilkan pesan perbaikan</div>
-                </div>
-                <button
-                  onClick={() => setMaintenance(!maintenanceMode)}
-                  disabled={loading}
-                  className={`relative h-10 w-[110px] rounded-full text-sm font-bold tracking-wide transition disabled:opacity-60 border border-white/10 shadow-inner ${
-                    maintenanceMode
-                      ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white'
-                      : 'bg-white/5 text-white/80 hover:bg-white/10'
-                  }`}
-                >
-                  <span
-                    className={`absolute top-1 left-1 h-8 w-8 rounded-full bg-white/90 shadow transition-transform ${
-                      maintenanceMode ? 'translate-x-[68px]' : 'translate-x-0'
+              <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <div className="text-sm text-white">Maintenance</div>
+                    <div className="text-xs text-white/60">Tutup website</div>
+                  </div>
+                  <button
+                    onClick={() => setMaintenance(!maintenanceMode)}
+                    disabled={loading}
+                    className={`relative h-9 w-[80px] rounded-full text-xs font-bold tracking-wide transition disabled:opacity-60 border border-white/10 shadow-inner ${
+                      maintenanceMode
+                        ? 'bg-gradient-to-r from-amber-600 to-orange-600 text-white'
+                        : 'bg-white/5 text-white/80 hover:bg-white/10'
                     }`}
-                    aria-hidden="true"
-                  />
-                  <span className="relative z-10">{maintenanceMode ? 'ON' : 'OFF'}</span>
-                </button>
+                  >
+                    <span
+                      className={`absolute top-0.5 left-0.5 h-7 w-7 rounded-full bg-white/90 shadow transition-transform ${
+                        maintenanceMode ? 'translate-x-[42px]' : 'translate-x-0'
+                      }`}
+                      aria-hidden="true"
+                    />
+                    <span className="relative z-10">{maintenanceMode ? 'ON' : 'OFF'}</span>
+                  </button>
+                </div>
               </div>
             </div>
 
