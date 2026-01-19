@@ -4,11 +4,19 @@ import path from 'path';
 export type AppSettings = {
   accessGateEnabled: boolean;
   maintenanceMode: boolean;
+  siteTitle: string;
+  siteDescription: string;
+  logoUrl: string;
+  faviconUrl: string;
 };
 
 const DEFAULT_SETTINGS: AppSettings = {
   accessGateEnabled: true,
   maintenanceMode: false,
+  siteTitle: 'Email Sementara',
+  siteDescription: 'Layanan email sementara sekali pakai',
+  logoUrl: '',
+  faviconUrl: '/icon.svg',
 };
 
 const KV_KEY = 'qinsmail:settings';
@@ -78,6 +86,13 @@ export async function getSettings(): Promise<AppSettings> {
           typeof parsed?.maintenanceMode === 'boolean'
             ? parsed.maintenanceMode
             : DEFAULT_SETTINGS.maintenanceMode,
+        siteTitle: typeof parsed?.siteTitle === 'string' ? parsed.siteTitle : DEFAULT_SETTINGS.siteTitle,
+        siteDescription:
+          typeof parsed?.siteDescription === 'string'
+            ? parsed.siteDescription
+            : DEFAULT_SETTINGS.siteDescription,
+        logoUrl: typeof parsed?.logoUrl === 'string' ? parsed.logoUrl : DEFAULT_SETTINGS.logoUrl,
+        faviconUrl: typeof parsed?.faviconUrl === 'string' ? parsed.faviconUrl : DEFAULT_SETTINGS.faviconUrl,
       };
     } catch {
       await kvSet(KV_KEY, JSON.stringify(DEFAULT_SETTINGS));
@@ -98,6 +113,13 @@ export async function getSettings(): Promise<AppSettings> {
         typeof parsed?.maintenanceMode === 'boolean'
           ? parsed.maintenanceMode
           : DEFAULT_SETTINGS.maintenanceMode,
+      siteTitle: typeof parsed?.siteTitle === 'string' ? parsed.siteTitle : DEFAULT_SETTINGS.siteTitle,
+      siteDescription:
+        typeof parsed?.siteDescription === 'string'
+          ? parsed.siteDescription
+          : DEFAULT_SETTINGS.siteDescription,
+      logoUrl: typeof parsed?.logoUrl === 'string' ? parsed.logoUrl : DEFAULT_SETTINGS.logoUrl,
+      faviconUrl: typeof parsed?.faviconUrl === 'string' ? parsed.faviconUrl : DEFAULT_SETTINGS.faviconUrl,
     };
   } catch {
     return { ...DEFAULT_SETTINGS };
@@ -115,6 +137,11 @@ export async function updateSettings(patch: Partial<AppSettings>): Promise<AppSe
       typeof patch.maintenanceMode === 'boolean'
         ? patch.maintenanceMode
         : current.maintenanceMode,
+    siteTitle: typeof patch.siteTitle === 'string' ? patch.siteTitle : current.siteTitle,
+    siteDescription:
+      typeof patch.siteDescription === 'string' ? patch.siteDescription : current.siteDescription,
+    logoUrl: typeof patch.logoUrl === 'string' ? patch.logoUrl : current.logoUrl,
+    faviconUrl: typeof patch.faviconUrl === 'string' ? patch.faviconUrl : current.faviconUrl,
   };
   if (hasKv()) {
     await kvSet(KV_KEY, JSON.stringify(next));

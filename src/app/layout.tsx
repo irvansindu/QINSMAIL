@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import InstallPrompt from "../components/InstallPrompt";
+import { getSettings } from "@/lib/settings";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,10 +14,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Email Sementara",
-  description: "Layanan email sementara sekali pakai",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const s = await getSettings();
+  return {
+    title: s.siteTitle,
+    description: s.siteDescription,
+    icons: {
+      icon: s.faviconUrl || "/icon.svg",
+      apple: s.faviconUrl || "/icon.svg",
+    },
+  };
+}
 
 export default function RootLayout({
   children,
@@ -30,9 +38,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#111827" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/icon.svg" />
+        <link rel="manifest" href="/api/manifest" />
         <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3604122645141902"

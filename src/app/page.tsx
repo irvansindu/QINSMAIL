@@ -49,6 +49,9 @@ export default function Home() {
   const [accessError, setAccessError] = useState('');
   const [accessSubmitting, setAccessSubmitting] = useState(false);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [siteTitle, setSiteTitle] = useState('Email Sementara');
+  const [siteDescription, setSiteDescription] = useState('Layanan email sementara sekali pakai');
+  const [logoUrl, setLogoUrl] = useState('');
 
   type ToastType = 'success' | 'error' | 'info';
   interface Toast { id: number; text: string; type: ToastType }
@@ -160,6 +163,9 @@ export default function Home() {
           if (typeof s.maintenanceMode === 'boolean') {
             setMaintenanceMode(s.maintenanceMode);
           }
+          if (typeof s.siteTitle === 'string') setSiteTitle(s.siteTitle);
+          if (typeof s.siteDescription === 'string') setSiteDescription(s.siteDescription);
+          if (typeof s.logoUrl === 'string') setLogoUrl(s.logoUrl);
         }
       } catch {}
       setAccessChecking(false);
@@ -754,8 +760,17 @@ export default function Home() {
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-3 text-xs bg-fuchsia-600/10 text-fuchsia-200 ring-1 ring-fuchsia-500/20">
             <Sparkles size={12} /> Cepat, aman, dan sementara
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-3 bg-linear-to-r from-fuchsia-300 via-pink-300 to-rose-300 bg-clip-text text-transparent">Email Sementara</h1>
-          <p className="text-white/70 text-sm sm:text-base max-w-2xl mx-auto">Buat alamat email sekali pakai untuk verifikasi, uji coba layanan, atau melindungi privasi Anda.</p>
+          {logoUrl ? (
+            <div className="mb-3 flex justify-center">
+              <img
+                src={logoUrl}
+                alt={siteTitle}
+                className="h-14 w-14 rounded-2xl object-contain bg-white/5 border border-white/10"
+              />
+            </div>
+          ) : null}
+          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-3 bg-linear-to-r from-fuchsia-300 via-pink-300 to-rose-300 bg-clip-text text-transparent">{siteTitle}</h1>
+          <p className="text-white/70 text-sm sm:text-base max-w-2xl mx-auto">{siteDescription}</p>
         </header>
 
         <section className="mb-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-4 fade-in fade-in-1">

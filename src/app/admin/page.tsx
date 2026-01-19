@@ -9,6 +9,10 @@ type SettingsResp = {
   settings?: {
     accessGateEnabled?: boolean;
     maintenanceMode?: boolean;
+    siteTitle?: string;
+    siteDescription?: string;
+    logoUrl?: string;
+    faviconUrl?: string;
   };
   stats?: {
     totalDomains: number;
@@ -29,6 +33,10 @@ export default function AdminPage() {
   const [domainInput, setDomainInput] = useState('');
   const [accessGateEnabled, setAccessGateEnabled] = useState<boolean>(true);
   const [maintenanceMode, setMaintenanceMode] = useState<boolean>(false);
+  const [siteTitle, setSiteTitle] = useState('');
+  const [siteDescription, setSiteDescription] = useState('');
+  const [logoUrl, setLogoUrl] = useState('');
+  const [faviconUrl, setFaviconUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [stats, setStats] = useState<SettingsResp['stats'] | null>(null);
@@ -61,6 +69,10 @@ export default function AdminPage() {
         const s = jsonSettings.settings;
         if (typeof s?.accessGateEnabled === 'boolean') setAccessGateEnabled(s.accessGateEnabled);
         if (typeof s?.maintenanceMode === 'boolean') setMaintenanceMode(s.maintenanceMode);
+        if (typeof s?.siteTitle === 'string') setSiteTitle(s.siteTitle);
+        if (typeof s?.siteDescription === 'string') setSiteDescription(s.siteDescription);
+        if (typeof s?.logoUrl === 'string') setLogoUrl(s.logoUrl);
+        if (typeof s?.faviconUrl === 'string') setFaviconUrl(s.faviconUrl);
       }
 
       const jsonStats = (await resStats.json().catch(() => ({ ok: false }))) as SettingsResp;
@@ -97,7 +109,40 @@ export default function AdminPage() {
     setDomainInput('');
     setAccessGateEnabled(true);
     setMaintenanceMode(false);
+    setSiteTitle('');
+    setSiteDescription('');
+    setLogoUrl('');
+    setFaviconUrl('');
     setError('');
+  };
+
+  const saveBranding = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({
+          siteTitle: siteTitle.trim(),
+          siteDescription: siteDescription.trim(),
+          logoUrl: logoUrl.trim(),
+          faviconUrl: faviconUrl.trim(),
+        }),
+      });
+      const json = (await res.json().catch(() => ({ ok: false }))) as SettingsResp;
+      if (!json.ok) throw new Error(json.error || 'failed');
+      const s = json.settings;
+      if (typeof s?.siteTitle === 'string') setSiteTitle(s.siteTitle);
+      if (typeof s?.siteDescription === 'string') setSiteDescription(s.siteDescription);
+      if (typeof s?.logoUrl === 'string') setLogoUrl(s.logoUrl);
+      if (typeof s?.faviconUrl === 'string') setFaviconUrl(s.faviconUrl);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'failed';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const setGate = async (enabled: boolean) => {
@@ -274,6 +319,62 @@ export default function AdminPage() {
               >
                 Logout
               </button>
+            </div>
+
+            <div className="mb-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-4">
+              <div className="flex items-start justify-between gap-4 mb-3">
+                <div>
+                  <div className="text-sm text-white">Branding</div>
+                  <div className="text-xs text-white/60">Ubah nama website, logo, dan favicon</div>
+                </div>
+                <button
+                  onClick={saveBranding}
+                  disabled={loading}
+                  className="h-10 px-4 rounded-xl text-white font-semibold disabled:opacity-60 bg-linear-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500"
+                >
+                  Simpan
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <div className="text-xs text-white/60 mb-1">Nama Website</div>
+                  <input
+                    value={siteTitle}
+                    onChange={(e) => setSiteTitle(e.target.value)}
+                    placeholder="QINZ STORE"
+                    className="w-full h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-white/30 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <div className="text-xs text-white/60 mb-1">Deskripsi Website</div>
+                  <input
+                    value={siteDescription}
+                    onChange={(e) => setSiteDescription(e.target.value)}
+                    placeholder="Layanan email sementara sekali pakai"
+                    className="w-full h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-white/30 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <div className="text-xs text-white/60 mb-1">Logo URL (opsional)</div>
+                  <input
+                    value={logoUrl}
+                    onChange={(e) => setLogoUrl(e.target.value)}
+                    placeholder="https://.../logo.png"
+                    className="w-full h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-white/30 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <div className="text-xs text-white/60 mb-1">Favicon URL</div>
+                  <input
+                    value={faviconUrl}
+                    onChange={(e) => setFaviconUrl(e.target.value)}
+                    placeholder="/icon.svg atau https://.../favicon.ico"
+                    className="w-full h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-white/30 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
+                  />
+                </div>
+              </div>
+              <div className="mt-3 text-[11px] text-white/40">Setelah simpan, refresh halaman depan untuk melihat perubahan.</div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">

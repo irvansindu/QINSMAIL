@@ -34,10 +34,21 @@ export async function GET(request: Request) {
 export async function PATCH(request: Request) {
   if (!ensureAuth(request)) return unauthorized();
   try {
-    const body = (await request.json()) as { accessGateEnabled?: boolean; maintenanceMode?: boolean };
+    const body = (await request.json()) as {
+      accessGateEnabled?: boolean;
+      maintenanceMode?: boolean;
+      siteTitle?: string;
+      siteDescription?: string;
+      logoUrl?: string;
+      faviconUrl?: string;
+    };
     const settings = await updateSettings({
       accessGateEnabled: body?.accessGateEnabled,
       maintenanceMode: body?.maintenanceMode,
+      siteTitle: body?.siteTitle,
+      siteDescription: body?.siteDescription,
+      logoUrl: body?.logoUrl,
+      faviconUrl: body?.faviconUrl,
     });
     return NextResponse.json({ ok: true, settings });
   } catch {
