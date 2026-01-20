@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 
 type ApiResp = { ok: boolean; domains?: string[]; error?: string };
@@ -40,6 +40,39 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [stats, setStats] = useState<SettingsResp['stats'] | null>(null);
+
+  const logoFileRef = useRef<HTMLInputElement | null>(null);
+  const faviconFileRef = useRef<HTMLInputElement | null>(null);
+
+  const uploadBrandingFile = async (kind: 'logo' | 'favicon', file: File) => {
+    setLoading(true);
+    setError('');
+    try {
+      const form = new FormData();
+      form.append('file', file);
+
+      const res = await fetch(`/api/admin/upload?kind=${encodeURIComponent(kind)}`, {
+        method: 'POST',
+        headers: token.trim() ? { 'x-admin-token': token.trim() } : undefined,
+        body: form,
+      });
+
+      const json = (await res.json().catch(() => ({ ok: false }))) as {
+        ok: boolean;
+        url?: string;
+        error?: string;
+      };
+      if (!json.ok || !json.url) throw new Error(json.error || 'upload-failed');
+
+      if (kind === 'logo') setLogoUrl(json.url);
+      if (kind === 'favicon') setFaviconUrl(json.url);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'failed';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const headers = useMemo(() => {
     const h: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -357,24 +390,68 @@ export default function AdminPage() {
                 </div>
                 <div>
                   <div className="text-xs text-white/60 mb-1">Logo URL (opsional)</div>
-                  <input
-                    value={logoUrl}
-                    onChange={(e) => setLogoUrl(e.target.value)}
-                    placeholder="https://.../logo.png"
-                    className="w-full h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-white/30 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
-                  />
+                  <div className="flex gap-2">
+                    <input
+                      value={logoUrl}
+                      onChange={(e) => setLogoUrl(e.target.value)}
+                      placeholder="https://.../logo.png"
+                      className="flex-1 h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-white/30 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => logoFileRef.current?.click()}
+                      disabled={loading}
+                      className="h-11 px-4 rounded-xl text-white/90 font-semibold disabled:opacity-60 bg-white/5 border border-white/10 hover:bg-white/10"
+                    >
+                      Upload
+                    </button>
+                    <input
+                      ref={logoFileRef}
+                      type="file"
+                      accept="image/svg+xml,image/png,image/webp,image/jpeg"
+                      className="hidden"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        e.currentTarget.value = '';
+                        if (!f) return;
+                        void uploadBrandingFile('logo', f);
+                      }}
+                    />
+                  </div>
                 </div>
                 <div>
                   <div className="text-xs text-white/60 mb-1">Favicon URL</div>
-                  <input
-                    value={faviconUrl}
-                    onChange={(e) => setFaviconUrl(e.target.value)}
-                    placeholder="/icon.svg atau https://.../favicon.ico"
-                    className="w-full h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-white/30 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
-                  />
+                  <div className="flex gap-2">
+                    <input
+                      value={faviconUrl}
+                      onChange={(e) => setFaviconUrl(e.target.value)}
+                      placeholder="/icon.svg atau https://.../favicon.svg"
+                      className="flex-1 h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-white/30 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => faviconFileRef.current?.click()}
+                      disabled={loading}
+                      className="h-11 px-4 rounded-xl text-white/90 font-semibold disabled:opacity-60 bg-white/5 border border-white/10 hover:bg-white/10"
+                    >
+                      Upload
+                    </button>
+                    <input
+                      ref={faviconFileRef}
+                      type="file"
+                      accept="image/svg+xml"
+                      className="hidden"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        e.currentTarget.value = '';
+                        if (!f) return;
+                        void uploadBrandingFile('favicon', f);
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
-              <div className="mt-3 text-[11px] text-white/40">Setelah simpan, refresh halaman depan untuk melihat perubahan.</div>
+              <div className="mt-3 text-[11px] text-white/40">Favicon wajib SVG. Setelah simpan, refresh halaman depan untuk melihat perubahan.</div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "@vercel/blob": "^2.0.0",
     "axios": "^1.13.2",
     "better-sqlite3": "^12.4.1",
     "googleapis": "^170.1.0",
