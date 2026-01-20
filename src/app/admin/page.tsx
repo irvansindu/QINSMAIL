@@ -282,7 +282,7 @@ export default function AdminPage() {
         aria-hidden="true"
       />
 
-      <div className="relative max-w-3xl mx-auto">
+      <div className="relative max-w-3xl lg:max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-7">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">Admin Panel</h1>
@@ -355,7 +355,7 @@ export default function AdminPage() {
             </div>
 
             <div className="mb-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-4">
-              <div className="flex items-start justify-between gap-4 mb-3">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
                 <div>
                   <div className="text-sm text-white">Branding</div>
                   <div className="text-xs text-white/60">Ubah nama website, logo, dan favicon</div>
@@ -363,7 +363,7 @@ export default function AdminPage() {
                 <button
                   onClick={saveBranding}
                   disabled={loading}
-                  className="h-10 px-4 rounded-xl text-white font-semibold disabled:opacity-60 bg-linear-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500"
+                  className="h-10 px-4 w-full sm:w-auto rounded-xl text-white font-semibold disabled:opacity-60 bg-linear-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500"
                 >
                   Simpan
                 </button>
@@ -390,18 +390,18 @@ export default function AdminPage() {
                 </div>
                 <div>
                   <div className="text-xs text-white/60 mb-1">Logo URL (opsional)</div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <input
                       value={logoUrl}
                       onChange={(e) => setLogoUrl(e.target.value)}
                       placeholder="https://.../logo.png"
-                      className="flex-1 h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-white/30 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
+                      className="w-full sm:flex-1 h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-white/30 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
                     />
                     <button
                       type="button"
                       onClick={() => logoFileRef.current?.click()}
                       disabled={loading}
-                      className="h-11 px-4 rounded-xl text-white/90 font-semibold disabled:opacity-60 bg-white/5 border border-white/10 hover:bg-white/10"
+                      className="h-11 px-4 w-full sm:w-auto rounded-xl text-white/90 font-semibold disabled:opacity-60 bg-white/5 border border-white/10 hover:bg-white/10"
                     >
                       Upload
                     </button>
@@ -421,18 +421,18 @@ export default function AdminPage() {
                 </div>
                 <div>
                   <div className="text-xs text-white/60 mb-1">Favicon URL</div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <input
                       value={faviconUrl}
                       onChange={(e) => setFaviconUrl(e.target.value)}
                       placeholder="/icon.svg atau https://.../favicon.svg"
-                      className="flex-1 h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-white/30 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
+                      className="w-full sm:flex-1 h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-white/30 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
                     />
                     <button
                       type="button"
                       onClick={() => faviconFileRef.current?.click()}
                       disabled={loading}
-                      className="h-11 px-4 rounded-xl text-white/90 font-semibold disabled:opacity-60 bg-white/5 border border-white/10 hover:bg-white/10"
+                      className="h-11 px-4 w-full sm:w-auto rounded-xl text-white/90 font-semibold disabled:opacity-60 bg-white/5 border border-white/10 hover:bg-white/10"
                     >
                       Upload
                     </button>
@@ -508,24 +508,24 @@ export default function AdminPage() {
               </div>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <input
                 value={domainInput}
                 onChange={(e) => setDomainInput(e.target.value)}
                 placeholder="contoh: example.com"
-                className="flex-1 h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-fuchsia-100/40 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
+                className="w-full sm:flex-1 h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-fuchsia-100/40 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
               />
               <button
                 onClick={onAdd}
                 disabled={loading}
-                className="h-11 px-4 rounded-xl text-white font-semibold disabled:opacity-60 bg-linear-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500"
+                className="h-11 px-4 w-full sm:w-auto rounded-xl text-white font-semibold disabled:opacity-60 bg-linear-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500"
               >
                 Add
               </button>
               <button
                 onClick={() => load()}
                 disabled={loading}
-                className="h-11 px-4 rounded-xl bg-white/5 text-white/90 hover:bg-white/10 disabled:opacity-60 border border-white/10"
+                className="h-11 px-4 w-full sm:w-auto rounded-xl bg-white/5 text-white/90 hover:bg-white/10 disabled:opacity-60 border border-white/10"
               >
                 Refresh
               </button>
