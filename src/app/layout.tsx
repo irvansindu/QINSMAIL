@@ -35,6 +35,7 @@ export default function RootLayout({
     <html lang="id">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta name="google-adsense-account" content="ca-pub-3047390780509413" />
         <meta name="theme-color" content="#111827" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
