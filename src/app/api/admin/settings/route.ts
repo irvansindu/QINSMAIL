@@ -41,6 +41,10 @@ export async function PATCH(request: Request) {
       siteDescription?: string;
       logoUrl?: string;
       faviconUrl?: string;
+      promoBannerEnabled?: boolean;
+      promoBannerText?: string;
+      promoBannerUrl?: string;
+      promoBannerVariant?: 'info' | 'success' | 'warning';
     };
     const settings = await updateSettings({
       accessGateEnabled: body?.accessGateEnabled,
@@ -49,6 +53,10 @@ export async function PATCH(request: Request) {
       siteDescription: body?.siteDescription,
       logoUrl: body?.logoUrl,
       faviconUrl: body?.faviconUrl,
+      promoBannerEnabled: body?.promoBannerEnabled,
+      promoBannerText: body?.promoBannerText,
+      promoBannerUrl: body?.promoBannerUrl,
+      promoBannerVariant: body?.promoBannerVariant,
     });
     return NextResponse.json({ ok: true, settings });
   } catch {

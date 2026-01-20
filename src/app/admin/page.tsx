@@ -13,6 +13,10 @@ type SettingsResp = {
     siteDescription?: string;
     logoUrl?: string;
     faviconUrl?: string;
+    promoBannerEnabled?: boolean;
+    promoBannerText?: string;
+    promoBannerUrl?: string;
+    promoBannerVariant?: 'info' | 'success' | 'warning';
   };
   stats?: {
     totalDomains: number;
@@ -37,6 +41,10 @@ export default function AdminPage() {
   const [siteDescription, setSiteDescription] = useState('');
   const [logoUrl, setLogoUrl] = useState('');
   const [faviconUrl, setFaviconUrl] = useState('');
+  const [promoBannerEnabled, setPromoBannerEnabled] = useState(false);
+  const [promoBannerText, setPromoBannerText] = useState('');
+  const [promoBannerUrl, setPromoBannerUrl] = useState('');
+  const [promoBannerVariant, setPromoBannerVariant] = useState<'info' | 'success' | 'warning'>('info');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [stats, setStats] = useState<SettingsResp['stats'] | null>(null);
@@ -106,6 +114,12 @@ export default function AdminPage() {
         if (typeof s?.siteDescription === 'string') setSiteDescription(s.siteDescription);
         if (typeof s?.logoUrl === 'string') setLogoUrl(s.logoUrl);
         if (typeof s?.faviconUrl === 'string') setFaviconUrl(s.faviconUrl);
+        if (typeof s?.promoBannerEnabled === 'boolean') setPromoBannerEnabled(s.promoBannerEnabled);
+        if (typeof s?.promoBannerText === 'string') setPromoBannerText(s.promoBannerText);
+        if (typeof s?.promoBannerUrl === 'string') setPromoBannerUrl(s.promoBannerUrl);
+        if (s?.promoBannerVariant === 'info' || s?.promoBannerVariant === 'success' || s?.promoBannerVariant === 'warning') {
+          setPromoBannerVariant(s.promoBannerVariant);
+        }
       }
 
       const jsonStats = (await resStats.json().catch(() => ({ ok: false }))) as SettingsResp;
@@ -146,6 +160,10 @@ export default function AdminPage() {
     setSiteDescription('');
     setLogoUrl('');
     setFaviconUrl('');
+    setPromoBannerEnabled(false);
+    setPromoBannerText('');
+    setPromoBannerUrl('');
+    setPromoBannerVariant('info');
     setError('');
   };
 
@@ -170,6 +188,37 @@ export default function AdminPage() {
       if (typeof s?.siteDescription === 'string') setSiteDescription(s.siteDescription);
       if (typeof s?.logoUrl === 'string') setLogoUrl(s.logoUrl);
       if (typeof s?.faviconUrl === 'string') setFaviconUrl(s.faviconUrl);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'failed';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const savePromoBanner = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({
+          promoBannerEnabled,
+          promoBannerText: promoBannerText.trim(),
+          promoBannerUrl: promoBannerUrl.trim(),
+          promoBannerVariant,
+        }),
+      });
+      const json = (await res.json().catch(() => ({ ok: false }))) as SettingsResp;
+      if (!json.ok) throw new Error(json.error || 'failed');
+      const s = json.settings;
+      if (typeof s?.promoBannerEnabled === 'boolean') setPromoBannerEnabled(s.promoBannerEnabled);
+      if (typeof s?.promoBannerText === 'string') setPromoBannerText(s.promoBannerText);
+      if (typeof s?.promoBannerUrl === 'string') setPromoBannerUrl(s.promoBannerUrl);
+      if (s?.promoBannerVariant === 'info' || s?.promoBannerVariant === 'success' || s?.promoBannerVariant === 'warning') {
+        setPromoBannerVariant(s.promoBannerVariant);
+      }
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'failed';
       setError(msg);
@@ -452,6 +501,87 @@ export default function AdminPage() {
                 </div>
               </div>
               <div className="mt-3 text-[11px] text-white/40">Favicon wajib SVG. Setelah simpan, refresh halaman depan untuk melihat perubahan.</div>
+            </div>
+
+            <div className="mb-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-4">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
+                <div>
+                  <div className="text-sm text-white">Banner / Promo</div>
+                  <div className="text-xs text-white/60">Tampilkan pengumuman atau promo di halaman depan</div>
+                </div>
+                <button
+                  onClick={savePromoBanner}
+                  disabled={loading}
+                  className="h-10 px-4 w-full sm:w-auto rounded-xl text-white font-semibold disabled:opacity-60 bg-linear-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500"
+                >
+                  Simpan
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <div className="text-sm text-white">Aktifkan banner</div>
+                      <div className="text-xs text-white/60">ON/OFF</div>
+                    </div>
+                    <button
+                      onClick={() => setPromoBannerEnabled(!promoBannerEnabled)}
+                      disabled={loading}
+                      className={`relative h-9 w-[80px] rounded-full text-xs font-bold tracking-wide transition disabled:opacity-60 border border-white/10 shadow-inner ${
+                        promoBannerEnabled
+                          ? 'bg-linear-to-r from-fuchsia-600 via-pink-600 to-rose-600 text-white'
+                          : 'bg-white/5 text-white/80 hover:bg-white/10'
+                      }`}
+                    >
+                      <span
+                        className={`absolute top-0.5 left-0.5 h-7 w-7 rounded-full bg-white/90 shadow transition-transform ${
+                          promoBannerEnabled ? 'translate-x-[42px]' : 'translate-x-0'
+                        }`}
+                        aria-hidden="true"
+                      />
+                      <span className="relative z-10">{promoBannerEnabled ? 'ON' : 'OFF'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-xs text-white/60 mb-1">Variant</div>
+                  <select
+                    value={promoBannerVariant}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (v === 'info' || v === 'success' || v === 'warning') setPromoBannerVariant(v);
+                    }}
+                    className="w-full h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
+                  >
+                    <option value="info">Info</option>
+                    <option value="success">Success</option>
+                    <option value="warning">Warning</option>
+                  </select>
+                </div>
+
+                <div>
+                  <div className="text-xs text-white/60 mb-1">Teks Banner</div>
+                  <input
+                    value={promoBannerText}
+                    onChange={(e) => setPromoBannerText(e.target.value)}
+                    placeholder="Contoh: Promo Premium aktif!"
+                    className="w-full h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-white/30 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <div className="text-xs text-white/60 mb-1">Link (opsional)</div>
+                  <input
+                    value={promoBannerUrl}
+                    onChange={(e) => setPromoBannerUrl(e.target.value)}
+                    placeholder="/upgrade atau https://..."
+                    className="w-full h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-white/30 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
+                  />
+                </div>
+              </div>
+              <div className="mt-3 text-[11px] text-white/40">Jika link diisi, banner bisa diklik untuk membuka halaman tersebut.</div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">

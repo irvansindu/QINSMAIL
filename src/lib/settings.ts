@@ -8,6 +8,10 @@ export type AppSettings = {
   siteDescription: string;
   logoUrl: string;
   faviconUrl: string;
+  promoBannerEnabled: boolean;
+  promoBannerText: string;
+  promoBannerUrl: string;
+  promoBannerVariant: 'info' | 'success' | 'warning';
 };
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -17,6 +21,10 @@ const DEFAULT_SETTINGS: AppSettings = {
   siteDescription: 'Layanan email sementara sekali pakai',
   logoUrl: '',
   faviconUrl: '/icon.svg',
+  promoBannerEnabled: false,
+  promoBannerText: '',
+  promoBannerUrl: '',
+  promoBannerVariant: 'info',
 };
 
 const KV_KEY = 'qinsmail:settings';
@@ -93,6 +101,24 @@ export async function getSettings(): Promise<AppSettings> {
             : DEFAULT_SETTINGS.siteDescription,
         logoUrl: typeof parsed?.logoUrl === 'string' ? parsed.logoUrl : DEFAULT_SETTINGS.logoUrl,
         faviconUrl: typeof parsed?.faviconUrl === 'string' ? parsed.faviconUrl : DEFAULT_SETTINGS.faviconUrl,
+        promoBannerEnabled:
+          typeof parsed?.promoBannerEnabled === 'boolean'
+            ? parsed.promoBannerEnabled
+            : DEFAULT_SETTINGS.promoBannerEnabled,
+        promoBannerText:
+          typeof parsed?.promoBannerText === 'string'
+            ? parsed.promoBannerText
+            : DEFAULT_SETTINGS.promoBannerText,
+        promoBannerUrl:
+          typeof parsed?.promoBannerUrl === 'string'
+            ? parsed.promoBannerUrl
+            : DEFAULT_SETTINGS.promoBannerUrl,
+        promoBannerVariant:
+          parsed?.promoBannerVariant === 'info' ||
+          parsed?.promoBannerVariant === 'success' ||
+          parsed?.promoBannerVariant === 'warning'
+            ? parsed.promoBannerVariant
+            : DEFAULT_SETTINGS.promoBannerVariant,
       };
     } catch {
       await kvSet(KV_KEY, JSON.stringify(DEFAULT_SETTINGS));
@@ -120,6 +146,24 @@ export async function getSettings(): Promise<AppSettings> {
           : DEFAULT_SETTINGS.siteDescription,
       logoUrl: typeof parsed?.logoUrl === 'string' ? parsed.logoUrl : DEFAULT_SETTINGS.logoUrl,
       faviconUrl: typeof parsed?.faviconUrl === 'string' ? parsed.faviconUrl : DEFAULT_SETTINGS.faviconUrl,
+      promoBannerEnabled:
+        typeof parsed?.promoBannerEnabled === 'boolean'
+          ? parsed.promoBannerEnabled
+          : DEFAULT_SETTINGS.promoBannerEnabled,
+      promoBannerText:
+        typeof parsed?.promoBannerText === 'string'
+          ? parsed.promoBannerText
+          : DEFAULT_SETTINGS.promoBannerText,
+      promoBannerUrl:
+        typeof parsed?.promoBannerUrl === 'string'
+          ? parsed.promoBannerUrl
+          : DEFAULT_SETTINGS.promoBannerUrl,
+      promoBannerVariant:
+        parsed?.promoBannerVariant === 'info' ||
+        parsed?.promoBannerVariant === 'success' ||
+        parsed?.promoBannerVariant === 'warning'
+          ? parsed.promoBannerVariant
+          : DEFAULT_SETTINGS.promoBannerVariant,
     };
   } catch {
     return { ...DEFAULT_SETTINGS };
@@ -142,6 +186,20 @@ export async function updateSettings(patch: Partial<AppSettings>): Promise<AppSe
       typeof patch.siteDescription === 'string' ? patch.siteDescription : current.siteDescription,
     logoUrl: typeof patch.logoUrl === 'string' ? patch.logoUrl : current.logoUrl,
     faviconUrl: typeof patch.faviconUrl === 'string' ? patch.faviconUrl : current.faviconUrl,
+    promoBannerEnabled:
+      typeof patch.promoBannerEnabled === 'boolean'
+        ? patch.promoBannerEnabled
+        : current.promoBannerEnabled,
+    promoBannerText:
+      typeof patch.promoBannerText === 'string' ? patch.promoBannerText : current.promoBannerText,
+    promoBannerUrl:
+      typeof patch.promoBannerUrl === 'string' ? patch.promoBannerUrl : current.promoBannerUrl,
+    promoBannerVariant:
+      patch.promoBannerVariant === 'info' ||
+      patch.promoBannerVariant === 'success' ||
+      patch.promoBannerVariant === 'warning'
+        ? patch.promoBannerVariant
+        : current.promoBannerVariant,
   };
   if (hasKv()) {
     await kvSet(KV_KEY, JSON.stringify(next));

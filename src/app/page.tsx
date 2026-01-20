@@ -52,6 +52,10 @@ export default function Home() {
   const [siteTitle, setSiteTitle] = useState('Email Sementara');
   const [siteDescription, setSiteDescription] = useState('Layanan email sementara sekali pakai');
   const [logoUrl, setLogoUrl] = useState('');
+  const [promoBannerEnabled, setPromoBannerEnabled] = useState(false);
+  const [promoBannerText, setPromoBannerText] = useState('');
+  const [promoBannerUrl, setPromoBannerUrl] = useState('');
+  const [promoBannerVariant, setPromoBannerVariant] = useState<'info' | 'success' | 'warning'>('info');
 
   type ToastType = 'success' | 'error' | 'info';
   interface Toast { id: number; text: string; type: ToastType }
@@ -166,6 +170,12 @@ export default function Home() {
           if (typeof s.siteTitle === 'string') setSiteTitle(s.siteTitle);
           if (typeof s.siteDescription === 'string') setSiteDescription(s.siteDescription);
           if (typeof s.logoUrl === 'string') setLogoUrl(s.logoUrl);
+          if (typeof s.promoBannerEnabled === 'boolean') setPromoBannerEnabled(s.promoBannerEnabled);
+          if (typeof s.promoBannerText === 'string') setPromoBannerText(s.promoBannerText);
+          if (typeof s.promoBannerUrl === 'string') setPromoBannerUrl(s.promoBannerUrl);
+          if (s.promoBannerVariant === 'info' || s.promoBannerVariant === 'success' || s.promoBannerVariant === 'warning') {
+            setPromoBannerVariant(s.promoBannerVariant);
+          }
         }
       } catch {}
       setAccessChecking(false);
@@ -754,6 +764,32 @@ export default function Home() {
         aria-hidden="true"
       />
       <div className="relative max-w-6xl mx-auto">
+        {promoBannerEnabled && promoBannerText ? (
+          <div className="mb-4 fade-in">
+            <a
+              href={promoBannerUrl || undefined}
+              onClick={(e) => {
+                if (!promoBannerUrl) e.preventDefault();
+              }}
+              className={`block rounded-2xl border px-4 py-3 text-sm backdrop-blur-md transition hover:brightness-110 ${
+                promoBannerVariant === 'success'
+                  ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-100'
+                  : promoBannerVariant === 'warning'
+                    ? 'bg-amber-500/10 border-amber-500/25 text-amber-100'
+                    : 'bg-fuchsia-500/10 border-fuchsia-500/25 text-fuchsia-100'
+              } ${promoBannerUrl ? 'cursor-pointer' : 'cursor-default'}`}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="truncate">{promoBannerText}</div>
+                </div>
+                {promoBannerUrl ? (
+                  <div className="text-xs font-semibold opacity-80">Buka</div>
+                ) : null}
+              </div>
+            </a>
+          </div>
+        ) : null}
         <div className="flex items-center justify-end mb-4">
         </div>
         <header className="text-center mb-10 fade-in">
