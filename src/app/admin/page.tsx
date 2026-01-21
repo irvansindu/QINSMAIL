@@ -18,6 +18,7 @@ type SettingsResp = {
     promoBannerUrl?: string;
     promoBannerVariant?: 'info' | 'success' | 'warning';
   };
+
   stats?: {
     totalDomains: number;
     maintenanceMode: boolean;
@@ -51,6 +52,7 @@ export default function AdminPage() {
 
   const logoFileRef = useRef<HTMLInputElement | null>(null);
   const faviconFileRef = useRef<HTMLInputElement | null>(null);
+  const backupFileRef = useRef<HTMLInputElement | null>(null);
 
   const uploadBrandingFile = async (kind: 'logo' | 'favicon', file: File) => {
     setLoading(true);
@@ -219,6 +221,90 @@ export default function AdminPage() {
       if (s?.promoBannerVariant === 'info' || s?.promoBannerVariant === 'success' || s?.promoBannerVariant === 'warning') {
         setPromoBannerVariant(s.promoBannerVariant);
       }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'failed';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const exportBackup = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/admin/backup', {
+        method: 'GET',
+        headers: token.trim() ? { 'x-admin-token': token.trim() } : undefined,
+      });
+      const json = (await res.json().catch(() => ({ ok: false }))) as {
+        ok: boolean;
+        backup?: unknown;
+        error?: string;
+      };
+      if (!json.ok || !json.backup) throw new Error(json.error || 'failed');
+      const blob = new Blob([JSON.stringify(json.backup, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `qinsmail-backup-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'failed';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const importBackup = async (file: File) => {
+    setLoading(true);
+    setError('');
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text) as unknown;
+      const res = await fetch('/api/admin/backup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token.trim() ? { 'x-admin-token': token.trim() } : {}),
+        },
+        body: JSON.stringify({ backup: parsed }),
+      });
+      const json = (await res.json().catch(() => ({ ok: false }))) as {
+        ok: boolean;
+        domains?: string[];
+        settings?: SettingsResp['settings'];
+        error?: string;
+      };
+      if (!json.ok) throw new Error(json.error || 'failed');
+
+      if (Array.isArray(json.domains)) setDomains(json.domains);
+
+      const s = json.settings;
+      if (s) {
+        if (typeof s.accessGateEnabled === 'boolean') setAccessGateEnabled(s.accessGateEnabled);
+        if (typeof s.maintenanceMode === 'boolean') setMaintenanceMode(s.maintenanceMode);
+        if (typeof s.siteTitle === 'string') setSiteTitle(s.siteTitle);
+        if (typeof s.siteDescription === 'string') setSiteDescription(s.siteDescription);
+        if (typeof s.logoUrl === 'string') setLogoUrl(s.logoUrl);
+        if (typeof s.faviconUrl === 'string') setFaviconUrl(s.faviconUrl);
+        if (typeof s.promoBannerEnabled === 'boolean') setPromoBannerEnabled(s.promoBannerEnabled);
+        if (typeof s.promoBannerText === 'string') setPromoBannerText(s.promoBannerText);
+        if (typeof s.promoBannerUrl === 'string') setPromoBannerUrl(s.promoBannerUrl);
+        if (
+          s.promoBannerVariant === 'info' ||
+          s.promoBannerVariant === 'success' ||
+          s.promoBannerVariant === 'warning'
+        ) {
+          setPromoBannerVariant(s.promoBannerVariant);
+        }
+      }
+
+      await load();
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'failed';
       setError(msg);
@@ -580,6 +666,46 @@ export default function AdminPage() {
                 </div>
               </div>
               <div className="mt-3 text-[11px] text-white/40">Jika link diisi, banner bisa diklik untuk membuka halaman tersebut.</div>
+            </div>
+
+            <div className="mb-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-4">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
+                <div>
+                  <div className="text-sm text-white">Backup / Restore</div>
+                  <div className="text-xs text-white/60">Export/Import settings + domains (JSON)</div>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <button
+                    type="button"
+                    onClick={exportBackup}
+                    disabled={loading}
+                    className="h-10 px-4 w-full sm:w-auto rounded-xl text-white/90 font-semibold disabled:opacity-60 bg-white/5 border border-white/10 hover:bg-white/10"
+                  >
+                    Export JSON
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => backupFileRef.current?.click()}
+                    disabled={loading}
+                    className="h-10 px-4 w-full sm:w-auto rounded-xl text-white font-semibold disabled:opacity-60 bg-linear-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500"
+                  >
+                    Import JSON
+                  </button>
+                  <input
+                    ref={backupFileRef}
+                    type="file"
+                    accept="application/json"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      e.currentTarget.value = '';
+                      if (!f) return;
+                      void importBackup(f);
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="text-[11px] text-white/40">Import akan menimpa domains & settings sesuai isi file backup.</div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">

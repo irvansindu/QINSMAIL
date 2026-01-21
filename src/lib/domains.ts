@@ -152,3 +152,14 @@ export async function deleteDomain(domainRaw: string): Promise<string[]> {
   await saveDomains(next);
   return next;
 }
+
+export async function replaceDomains(domainsRaw: unknown): Promise<string[]> {
+  const list = Array.isArray(domainsRaw) ? domainsRaw : [];
+  const out = list
+    .map(v => (typeof v === 'string' ? normalizeDomain(v) : ''))
+    .filter(Boolean)
+    .filter(isValidDomain);
+  const next = Array.from(new Set(out)).sort();
+  await saveDomains(next);
+  return next;
+}
