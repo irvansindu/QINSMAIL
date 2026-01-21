@@ -519,12 +519,10 @@ export default function AdminPage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <div className="text-sm text-white">Aktifkan banner</div>
-                      <div className="text-xs text-white/60">ON/OFF</div>
-                    </div>
+                <div>
+                  <div className="text-xs text-white/60 mb-1">Aktifkan banner</div>
+                  <div className="h-11 px-3 sm:px-4 rounded-xl border border-white/10 bg-white/5 flex items-center justify-between gap-4">
+                    <div className="text-sm text-white/90">{promoBannerEnabled ? 'Aktif' : 'Nonaktif'}</div>
                     <button
                       onClick={() => setPromoBannerEnabled(!promoBannerEnabled)}
                       disabled={loading}
@@ -555,9 +553,9 @@ export default function AdminPage() {
                     }}
                     className="w-full h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
                   >
-                    <option value="info">Info</option>
-                    <option value="success">Success</option>
-                    <option value="warning">Warning</option>
+                    <option value="info" className="text-black bg-white">Info</option>
+                    <option value="success" className="text-black bg-white">Success</option>
+                    <option value="warning" className="text-black bg-white">Warning</option>
                   </select>
                 </div>
 
