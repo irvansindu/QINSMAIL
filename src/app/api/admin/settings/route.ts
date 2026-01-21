@@ -42,6 +42,8 @@ export async function PATCH(request: Request) {
       maintenanceEtaText?: string;
       maintenanceContactText?: string;
       maintenanceContactUrl?: string;
+      privacyPolicyText?: string;
+      termsText?: string;
       siteTitle?: string;
       siteDescription?: string;
       logoUrl?: string;
@@ -59,6 +61,8 @@ export async function PATCH(request: Request) {
       maintenanceEtaText: body?.maintenanceEtaText,
       maintenanceContactText: body?.maintenanceContactText,
       maintenanceContactUrl: body?.maintenanceContactUrl,
+      privacyPolicyText: body?.privacyPolicyText,
+      termsText: body?.termsText,
       siteTitle: body?.siteTitle,
       siteDescription: body?.siteDescription,
       logoUrl: body?.logoUrl,

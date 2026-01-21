@@ -14,6 +14,8 @@ type SettingsResp = {
     maintenanceEtaText?: string;
     maintenanceContactText?: string;
     maintenanceContactUrl?: string;
+    privacyPolicyText?: string;
+    termsText?: string;
     siteTitle?: string;
     siteDescription?: string;
     logoUrl?: string;
@@ -48,6 +50,8 @@ export default function AdminPage() {
   const [maintenanceEtaText, setMaintenanceEtaText] = useState('');
   const [maintenanceContactText, setMaintenanceContactText] = useState('');
   const [maintenanceContactUrl, setMaintenanceContactUrl] = useState('');
+  const [privacyPolicyText, setPrivacyPolicyText] = useState('');
+  const [termsText, setTermsText] = useState('');
   const [siteTitle, setSiteTitle] = useState('');
   const [siteDescription, setSiteDescription] = useState('');
   const [logoUrl, setLogoUrl] = useState('');
@@ -127,6 +131,8 @@ export default function AdminPage() {
         if (typeof s?.maintenanceEtaText === 'string') setMaintenanceEtaText(s.maintenanceEtaText);
         if (typeof s?.maintenanceContactText === 'string') setMaintenanceContactText(s.maintenanceContactText);
         if (typeof s?.maintenanceContactUrl === 'string') setMaintenanceContactUrl(s.maintenanceContactUrl);
+        if (typeof s?.privacyPolicyText === 'string') setPrivacyPolicyText(s.privacyPolicyText);
+        if (typeof s?.termsText === 'string') setTermsText(s.termsText);
         if (typeof s?.siteTitle === 'string') setSiteTitle(s.siteTitle);
         if (typeof s?.siteDescription === 'string') setSiteDescription(s.siteDescription);
         if (typeof s?.logoUrl === 'string') setLogoUrl(s.logoUrl);
@@ -178,6 +184,8 @@ export default function AdminPage() {
     setMaintenanceEtaText('');
     setMaintenanceContactText('');
     setMaintenanceContactUrl('');
+    setPrivacyPolicyText('');
+    setTermsText('');
     setSiteTitle('');
     setSiteDescription('');
     setLogoUrl('');
@@ -398,6 +406,31 @@ export default function AdminPage() {
       if (typeof s?.maintenanceEtaText === 'string') setMaintenanceEtaText(s.maintenanceEtaText);
       if (typeof s?.maintenanceContactText === 'string') setMaintenanceContactText(s.maintenanceContactText);
       if (typeof s?.maintenanceContactUrl === 'string') setMaintenanceContactUrl(s.maintenanceContactUrl);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'failed';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveLegalPages = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({
+          privacyPolicyText: privacyPolicyText.trim(),
+          termsText: termsText.trim(),
+        }),
+      });
+      const json = (await res.json().catch(() => ({ ok: false }))) as SettingsResp;
+      if (!json.ok) throw new Error(json.error || 'failed');
+      const s = json.settings;
+      if (typeof s?.privacyPolicyText === 'string') setPrivacyPolicyText(s.privacyPolicyText);
+      if (typeof s?.termsText === 'string') setTermsText(s.termsText);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'failed';
       setError(msg);
@@ -877,6 +910,54 @@ export default function AdminPage() {
                 </div>
               </div>
               <div className="mt-3 text-[11px] text-white/40">Tips: nyalakan Maintenance di atas, lalu refresh halaman depan.</div>
+            </div>
+
+            <div className="mb-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-4">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
+                <div>
+                  <div className="text-sm text-white">Privacy Policy & Terms</div>
+                  <div className="text-xs text-white/60">
+                    Halaman legal untuk AdSense/SEO/Trust. Lihat:
+                    <span className="ml-2">
+                      <Link href="/privacy" className="text-fuchsia-200 hover:text-fuchsia-100 underline">/privacy</Link>
+                    </span>
+                    <span className="ml-2">
+                      <Link href="/terms" className="text-fuchsia-200 hover:text-fuchsia-100 underline">/terms</Link>
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={saveLegalPages}
+                  disabled={loading}
+                  className="h-10 px-4 w-full sm:w-auto rounded-xl text-white font-semibold disabled:opacity-60 bg-linear-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500"
+                >
+                  Simpan
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3">
+                <div>
+                  <div className="text-xs text-white/60 mb-1">Privacy Policy</div>
+                  <textarea
+                    value={privacyPolicyText}
+                    onChange={(e) => setPrivacyPolicyText(e.target.value)}
+                    rows={8}
+                    placeholder="Tulis Privacy Policy di sini..."
+                    className="w-full px-3 sm:px-4 py-3 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-white/30 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <div className="text-xs text-white/60 mb-1">Terms & Conditions</div>
+                  <textarea
+                    value={termsText}
+                    onChange={(e) => setTermsText(e.target.value)}
+                    rows={8}
+                    placeholder="Tulis Terms & Conditions di sini..."
+                    className="w-full px-3 sm:px-4 py-3 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-white/30 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
+                  />
+                </div>
+              </div>
+              <div className="mt-3 text-[11px] text-white/40">Konten disimpan sebagai teks biasa (aman), termasuk line breaks.</div>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-2">

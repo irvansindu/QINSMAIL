@@ -9,6 +9,8 @@ export type AppSettings = {
   maintenanceEtaText: string;
   maintenanceContactText: string;
   maintenanceContactUrl: string;
+  privacyPolicyText: string;
+  termsText: string;
   siteTitle: string;
   siteDescription: string;
   logoUrl: string;
@@ -28,6 +30,8 @@ const DEFAULT_SETTINGS: AppSettings = {
   maintenanceEtaText: 'Segera Kembali',
   maintenanceContactText: '',
   maintenanceContactUrl: '',
+  privacyPolicyText: '',
+  termsText: '',
   siteTitle: 'Email Sementara',
   siteDescription: 'Layanan email sementara sekali pakai',
   logoUrl: '',
@@ -125,6 +129,12 @@ export async function getSettings(): Promise<AppSettings> {
           typeof parsed?.maintenanceContactUrl === 'string'
             ? parsed.maintenanceContactUrl
             : DEFAULT_SETTINGS.maintenanceContactUrl,
+        privacyPolicyText:
+          typeof parsed?.privacyPolicyText === 'string'
+            ? parsed.privacyPolicyText
+            : DEFAULT_SETTINGS.privacyPolicyText,
+        termsText:
+          typeof parsed?.termsText === 'string' ? parsed.termsText : DEFAULT_SETTINGS.termsText,
         siteTitle: typeof parsed?.siteTitle === 'string' ? parsed.siteTitle : DEFAULT_SETTINGS.siteTitle,
         siteDescription:
           typeof parsed?.siteDescription === 'string'
@@ -190,6 +200,12 @@ export async function getSettings(): Promise<AppSettings> {
         typeof parsed?.maintenanceContactUrl === 'string'
           ? parsed.maintenanceContactUrl
           : DEFAULT_SETTINGS.maintenanceContactUrl,
+      privacyPolicyText:
+        typeof parsed?.privacyPolicyText === 'string'
+          ? parsed.privacyPolicyText
+          : DEFAULT_SETTINGS.privacyPolicyText,
+      termsText:
+        typeof parsed?.termsText === 'string' ? parsed.termsText : DEFAULT_SETTINGS.termsText,
       siteTitle: typeof parsed?.siteTitle === 'string' ? parsed.siteTitle : DEFAULT_SETTINGS.siteTitle,
       siteDescription:
         typeof parsed?.siteDescription === 'string'
@@ -250,6 +266,9 @@ export async function updateSettings(patch: Partial<AppSettings>): Promise<AppSe
       typeof patch.maintenanceContactUrl === 'string'
         ? patch.maintenanceContactUrl
         : current.maintenanceContactUrl,
+    privacyPolicyText:
+      typeof patch.privacyPolicyText === 'string' ? patch.privacyPolicyText : current.privacyPolicyText,
+    termsText: typeof patch.termsText === 'string' ? patch.termsText : current.termsText,
     siteTitle: typeof patch.siteTitle === 'string' ? patch.siteTitle : current.siteTitle,
     siteDescription:
       typeof patch.siteDescription === 'string' ? patch.siteDescription : current.siteDescription,
