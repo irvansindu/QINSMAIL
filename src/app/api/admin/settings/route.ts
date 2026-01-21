@@ -37,6 +37,11 @@ export async function PATCH(request: Request) {
     const body = (await request.json()) as {
       accessGateEnabled?: boolean;
       maintenanceMode?: boolean;
+      maintenanceTitle?: string;
+      maintenanceMessage?: string;
+      maintenanceEtaText?: string;
+      maintenanceContactText?: string;
+      maintenanceContactUrl?: string;
       siteTitle?: string;
       siteDescription?: string;
       logoUrl?: string;
@@ -49,6 +54,11 @@ export async function PATCH(request: Request) {
     const settings = await updateSettings({
       accessGateEnabled: body?.accessGateEnabled,
       maintenanceMode: body?.maintenanceMode,
+      maintenanceTitle: body?.maintenanceTitle,
+      maintenanceMessage: body?.maintenanceMessage,
+      maintenanceEtaText: body?.maintenanceEtaText,
+      maintenanceContactText: body?.maintenanceContactText,
+      maintenanceContactUrl: body?.maintenanceContactUrl,
       siteTitle: body?.siteTitle,
       siteDescription: body?.siteDescription,
       logoUrl: body?.logoUrl,

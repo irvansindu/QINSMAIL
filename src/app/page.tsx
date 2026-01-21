@@ -49,6 +49,13 @@ export default function Home() {
   const [accessError, setAccessError] = useState('');
   const [accessSubmitting, setAccessSubmitting] = useState(false);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [maintenanceTitle, setMaintenanceTitle] = useState('Sistem Sedang Diperbarui');
+  const [maintenanceMessage, setMaintenanceMessage] = useState(
+    'Kami sedang melakukan pemeliharaan rutin untuk meningkatkan layanan. Kami akan segera kembali!'
+  );
+  const [maintenanceEtaText, setMaintenanceEtaText] = useState('Segera Kembali');
+  const [maintenanceContactText, setMaintenanceContactText] = useState('');
+  const [maintenanceContactUrl, setMaintenanceContactUrl] = useState('');
   const [siteTitle, setSiteTitle] = useState('Email Sementara');
   const [siteDescription, setSiteDescription] = useState('Layanan email sementara sekali pakai');
   const [logoUrl, setLogoUrl] = useState('');
@@ -167,6 +174,11 @@ export default function Home() {
           if (typeof s.maintenanceMode === 'boolean') {
             setMaintenanceMode(s.maintenanceMode);
           }
+          if (typeof s.maintenanceTitle === 'string') setMaintenanceTitle(s.maintenanceTitle);
+          if (typeof s.maintenanceMessage === 'string') setMaintenanceMessage(s.maintenanceMessage);
+          if (typeof s.maintenanceEtaText === 'string') setMaintenanceEtaText(s.maintenanceEtaText);
+          if (typeof s.maintenanceContactText === 'string') setMaintenanceContactText(s.maintenanceContactText);
+          if (typeof s.maintenanceContactUrl === 'string') setMaintenanceContactUrl(s.maintenanceContactUrl);
           if (typeof s.siteTitle === 'string') setSiteTitle(s.siteTitle);
           if (typeof s.siteDescription === 'string') setSiteDescription(s.siteDescription);
           if (typeof s.logoUrl === 'string') setLogoUrl(s.logoUrl);
@@ -724,24 +736,34 @@ export default function Home() {
   }, [sseOn, email, domain, intervalMs]);
 
   return (
-    <main className="relative min-h-screen overflow-hidden p-4 md:p-8 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] bg-[#0b0613]">
+    <main className={`relative min-h-screen overflow-hidden p-4 md:p-8 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] bg-[#0b0613] ${maintenanceMode ? 'h-screen overflow-hidden' : ''}`}>
       {maintenanceMode ? (
-        <div className="fixed inset-0 z-100 flex items-center justify-center bg-[#0b0613] p-6 text-center">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-[#0b0613] p-6 text-center overflow-hidden">
           <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(900px 450px at 50% 0%, rgba(236,72,153,0.3), transparent 60%), radial-gradient(700px 420px at 85% 25%, rgba(168,85,247,0.25), transparent 55%)' }} aria-hidden="true" />
           <div className="relative max-w-md w-full">
             <div className="mx-auto w-20 h-20 rounded-3xl bg-amber-500/10 text-amber-500 flex items-center justify-center mb-6 border border-amber-500/20 shadow-[0_0_30px_rgba(245,158,11,0.1)]">
               <RefreshCw size={40} className="animate-spin-slow" />
             </div>
-            <h1 className="text-3xl font-bold text-white mb-3">Sistem Sedang Diperbarui</h1>
-            <p className="text-fuchsia-100/60 mb-8 leading-relaxed">
-              Kami sedang melakukan pemeliharaan rutin untuk meningkatkan layanan. Kami akan segera kembali!
-            </p>
+            <h1 className="text-3xl font-bold text-white mb-3">{maintenanceTitle}</h1>
+            <p className="text-fuchsia-100/60 mb-8 leading-relaxed">{maintenanceMessage}</p>
             <div className="text-xs font-medium uppercase tracking-[0.2em] text-fuchsia-400/80 mb-2">Estimasi Selesai</div>
             <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white inline-block">
-              Segera Kembali
+              {maintenanceEtaText}
             </div>
-            <div className="mt-12 text-sm text-white/40">
-              © 2025 <span className="text-fuchsia-300">QINZ STORE</span>
+            {maintenanceContactText && maintenanceContactUrl ? (
+              <div className="mt-6">
+                <a
+                  href={maintenanceContactUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center h-10 px-4 rounded-xl bg-white/5 border border-white/10 text-white/90 hover:bg-white/10"
+                >
+                  {maintenanceContactText}
+                </a>
+              </div>
+            ) : null}
+            <div className="mt-10 text-sm text-white/40">
+              © 2025 <span className="text-fuchsia-300">{siteTitle}</span>
             </div>
           </div>
         </div>

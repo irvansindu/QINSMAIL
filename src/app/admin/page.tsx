@@ -9,6 +9,11 @@ type SettingsResp = {
   settings?: {
     accessGateEnabled?: boolean;
     maintenanceMode?: boolean;
+    maintenanceTitle?: string;
+    maintenanceMessage?: string;
+    maintenanceEtaText?: string;
+    maintenanceContactText?: string;
+    maintenanceContactUrl?: string;
     siteTitle?: string;
     siteDescription?: string;
     logoUrl?: string;
@@ -38,6 +43,11 @@ export default function AdminPage() {
   const [domainInput, setDomainInput] = useState('');
   const [accessGateEnabled, setAccessGateEnabled] = useState<boolean>(true);
   const [maintenanceMode, setMaintenanceMode] = useState<boolean>(false);
+  const [maintenanceTitle, setMaintenanceTitle] = useState('');
+  const [maintenanceMessage, setMaintenanceMessage] = useState('');
+  const [maintenanceEtaText, setMaintenanceEtaText] = useState('');
+  const [maintenanceContactText, setMaintenanceContactText] = useState('');
+  const [maintenanceContactUrl, setMaintenanceContactUrl] = useState('');
   const [siteTitle, setSiteTitle] = useState('');
   const [siteDescription, setSiteDescription] = useState('');
   const [logoUrl, setLogoUrl] = useState('');
@@ -112,6 +122,11 @@ export default function AdminPage() {
         const s = jsonSettings.settings;
         if (typeof s?.accessGateEnabled === 'boolean') setAccessGateEnabled(s.accessGateEnabled);
         if (typeof s?.maintenanceMode === 'boolean') setMaintenanceMode(s.maintenanceMode);
+        if (typeof s?.maintenanceTitle === 'string') setMaintenanceTitle(s.maintenanceTitle);
+        if (typeof s?.maintenanceMessage === 'string') setMaintenanceMessage(s.maintenanceMessage);
+        if (typeof s?.maintenanceEtaText === 'string') setMaintenanceEtaText(s.maintenanceEtaText);
+        if (typeof s?.maintenanceContactText === 'string') setMaintenanceContactText(s.maintenanceContactText);
+        if (typeof s?.maintenanceContactUrl === 'string') setMaintenanceContactUrl(s.maintenanceContactUrl);
         if (typeof s?.siteTitle === 'string') setSiteTitle(s.siteTitle);
         if (typeof s?.siteDescription === 'string') setSiteDescription(s.siteDescription);
         if (typeof s?.logoUrl === 'string') setLogoUrl(s.logoUrl);
@@ -158,6 +173,11 @@ export default function AdminPage() {
     setDomainInput('');
     setAccessGateEnabled(true);
     setMaintenanceMode(false);
+    setMaintenanceTitle('');
+    setMaintenanceMessage('');
+    setMaintenanceEtaText('');
+    setMaintenanceContactText('');
+    setMaintenanceContactUrl('');
     setSiteTitle('');
     setSiteDescription('');
     setLogoUrl('');
@@ -347,6 +367,37 @@ export default function AdminPage() {
       if (!json.ok) throw new Error(json.error || 'failed');
       const val = json.settings?.maintenanceMode;
       if (typeof val === 'boolean') setMaintenanceMode(val);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'failed';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveMaintenanceMessage = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({
+          maintenanceTitle: maintenanceTitle.trim(),
+          maintenanceMessage: maintenanceMessage.trim(),
+          maintenanceEtaText: maintenanceEtaText.trim(),
+          maintenanceContactText: maintenanceContactText.trim(),
+          maintenanceContactUrl: maintenanceContactUrl.trim(),
+        }),
+      });
+      const json = (await res.json().catch(() => ({ ok: false }))) as SettingsResp;
+      if (!json.ok) throw new Error(json.error || 'failed');
+      const s = json.settings;
+      if (typeof s?.maintenanceTitle === 'string') setMaintenanceTitle(s.maintenanceTitle);
+      if (typeof s?.maintenanceMessage === 'string') setMaintenanceMessage(s.maintenanceMessage);
+      if (typeof s?.maintenanceEtaText === 'string') setMaintenanceEtaText(s.maintenanceEtaText);
+      if (typeof s?.maintenanceContactText === 'string') setMaintenanceContactText(s.maintenanceContactText);
+      if (typeof s?.maintenanceContactUrl === 'string') setMaintenanceContactUrl(s.maintenanceContactUrl);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'failed';
       setError(msg);
@@ -760,6 +811,72 @@ export default function AdminPage() {
                   </button>
                 </div>
               </div>
+            </div>
+
+            <div className="mb-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-4">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
+                <div>
+                  <div className="text-sm text-white">Maintenance message</div>
+                  <div className="text-xs text-white/60">Ubah teks yang tampil saat maintenance aktif</div>
+                </div>
+                <button
+                  onClick={saveMaintenanceMessage}
+                  disabled={loading}
+                  className="h-10 px-4 w-full sm:w-auto rounded-xl text-white font-semibold disabled:opacity-60 bg-linear-to-r from-fuchsia-600 via-pink-600 to-rose-600 hover:from-fuchsia-500 hover:via-pink-500 hover:to-rose-500"
+                >
+                  Simpan
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <div className="text-xs text-white/60 mb-1">Judul</div>
+                  <input
+                    value={maintenanceTitle}
+                    onChange={(e) => setMaintenanceTitle(e.target.value)}
+                    placeholder="Sistem Sedang Diperbarui"
+                    className="w-full h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-white/30 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <div className="text-xs text-white/60 mb-1">Estimasi</div>
+                  <input
+                    value={maintenanceEtaText}
+                    onChange={(e) => setMaintenanceEtaText(e.target.value)}
+                    placeholder="Segera Kembali"
+                    className="w-full h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-white/30 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <div className="text-xs text-white/60 mb-1">Pesan</div>
+                  <textarea
+                    value={maintenanceMessage}
+                    onChange={(e) => setMaintenanceMessage(e.target.value)}
+                    rows={4}
+                    placeholder="Kami sedang melakukan pemeliharaan..."
+                    className="w-full px-3 sm:px-4 py-3 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-white/30 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <div className="text-xs text-white/60 mb-1">Kontak (label)</div>
+                  <input
+                    value={maintenanceContactText}
+                    onChange={(e) => setMaintenanceContactText(e.target.value)}
+                    placeholder="WhatsApp Admin"
+                    className="w-full h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-white/30 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <div className="text-xs text-white/60 mb-1">Kontak URL</div>
+                  <input
+                    value={maintenanceContactUrl}
+                    onChange={(e) => setMaintenanceContactUrl(e.target.value)}
+                    placeholder="https://wa.me/..."
+                    className="w-full h-11 px-3 sm:px-4 border border-white/10 bg-white/5 text-white rounded-xl placeholder:text-white/30 focus:ring-2 focus:ring-fuchsia-400/60 focus:border-transparent"
+                  />
+                </div>
+              </div>
+              <div className="mt-3 text-[11px] text-white/40">Tips: nyalakan Maintenance di atas, lalu refresh halaman depan.</div>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-2">

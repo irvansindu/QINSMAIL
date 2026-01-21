@@ -4,6 +4,11 @@ import path from 'path';
 export type AppSettings = {
   accessGateEnabled: boolean;
   maintenanceMode: boolean;
+  maintenanceTitle: string;
+  maintenanceMessage: string;
+  maintenanceEtaText: string;
+  maintenanceContactText: string;
+  maintenanceContactUrl: string;
   siteTitle: string;
   siteDescription: string;
   logoUrl: string;
@@ -17,6 +22,12 @@ export type AppSettings = {
 const DEFAULT_SETTINGS: AppSettings = {
   accessGateEnabled: true,
   maintenanceMode: false,
+  maintenanceTitle: 'Sistem Sedang Diperbarui',
+  maintenanceMessage:
+    'Kami sedang melakukan pemeliharaan rutin untuk meningkatkan layanan. Kami akan segera kembali!',
+  maintenanceEtaText: 'Segera Kembali',
+  maintenanceContactText: '',
+  maintenanceContactUrl: '',
   siteTitle: 'Email Sementara',
   siteDescription: 'Layanan email sementara sekali pakai',
   logoUrl: '',
@@ -94,6 +105,26 @@ export async function getSettings(): Promise<AppSettings> {
           typeof parsed?.maintenanceMode === 'boolean'
             ? parsed.maintenanceMode
             : DEFAULT_SETTINGS.maintenanceMode,
+        maintenanceTitle:
+          typeof parsed?.maintenanceTitle === 'string'
+            ? parsed.maintenanceTitle
+            : DEFAULT_SETTINGS.maintenanceTitle,
+        maintenanceMessage:
+          typeof parsed?.maintenanceMessage === 'string'
+            ? parsed.maintenanceMessage
+            : DEFAULT_SETTINGS.maintenanceMessage,
+        maintenanceEtaText:
+          typeof parsed?.maintenanceEtaText === 'string'
+            ? parsed.maintenanceEtaText
+            : DEFAULT_SETTINGS.maintenanceEtaText,
+        maintenanceContactText:
+          typeof parsed?.maintenanceContactText === 'string'
+            ? parsed.maintenanceContactText
+            : DEFAULT_SETTINGS.maintenanceContactText,
+        maintenanceContactUrl:
+          typeof parsed?.maintenanceContactUrl === 'string'
+            ? parsed.maintenanceContactUrl
+            : DEFAULT_SETTINGS.maintenanceContactUrl,
         siteTitle: typeof parsed?.siteTitle === 'string' ? parsed.siteTitle : DEFAULT_SETTINGS.siteTitle,
         siteDescription:
           typeof parsed?.siteDescription === 'string'
@@ -139,6 +170,26 @@ export async function getSettings(): Promise<AppSettings> {
         typeof parsed?.maintenanceMode === 'boolean'
           ? parsed.maintenanceMode
           : DEFAULT_SETTINGS.maintenanceMode,
+      maintenanceTitle:
+        typeof parsed?.maintenanceTitle === 'string'
+          ? parsed.maintenanceTitle
+          : DEFAULT_SETTINGS.maintenanceTitle,
+      maintenanceMessage:
+        typeof parsed?.maintenanceMessage === 'string'
+          ? parsed.maintenanceMessage
+          : DEFAULT_SETTINGS.maintenanceMessage,
+      maintenanceEtaText:
+        typeof parsed?.maintenanceEtaText === 'string'
+          ? parsed.maintenanceEtaText
+          : DEFAULT_SETTINGS.maintenanceEtaText,
+      maintenanceContactText:
+        typeof parsed?.maintenanceContactText === 'string'
+          ? parsed.maintenanceContactText
+          : DEFAULT_SETTINGS.maintenanceContactText,
+      maintenanceContactUrl:
+        typeof parsed?.maintenanceContactUrl === 'string'
+          ? parsed.maintenanceContactUrl
+          : DEFAULT_SETTINGS.maintenanceContactUrl,
       siteTitle: typeof parsed?.siteTitle === 'string' ? parsed.siteTitle : DEFAULT_SETTINGS.siteTitle,
       siteDescription:
         typeof parsed?.siteDescription === 'string'
@@ -181,6 +232,24 @@ export async function updateSettings(patch: Partial<AppSettings>): Promise<AppSe
       typeof patch.maintenanceMode === 'boolean'
         ? patch.maintenanceMode
         : current.maintenanceMode,
+    maintenanceTitle:
+      typeof patch.maintenanceTitle === 'string' ? patch.maintenanceTitle : current.maintenanceTitle,
+    maintenanceMessage:
+      typeof patch.maintenanceMessage === 'string'
+        ? patch.maintenanceMessage
+        : current.maintenanceMessage,
+    maintenanceEtaText:
+      typeof patch.maintenanceEtaText === 'string'
+        ? patch.maintenanceEtaText
+        : current.maintenanceEtaText,
+    maintenanceContactText:
+      typeof patch.maintenanceContactText === 'string'
+        ? patch.maintenanceContactText
+        : current.maintenanceContactText,
+    maintenanceContactUrl:
+      typeof patch.maintenanceContactUrl === 'string'
+        ? patch.maintenanceContactUrl
+        : current.maintenanceContactUrl,
     siteTitle: typeof patch.siteTitle === 'string' ? patch.siteTitle : current.siteTitle,
     siteDescription:
       typeof patch.siteDescription === 'string' ? patch.siteDescription : current.siteDescription,
