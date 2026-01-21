@@ -1222,10 +1222,27 @@ export default function Home() {
         )}
 
         <footer className="text-center text-sm text-white/60 mt-12">
-          <p>
-            © 2025{' '}
-            <a href="https://qinzstore.asia" target="_blank" rel="noopener noreferrer" className="text-fuchsia-200 hover:underline">QINZ STORE</a>
-          </p>
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+            <span>
+              &copy; 2025{' '}
+              <a
+                href="https://qinzstore.asia"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-fuchsia-200 hover:underline"
+              >
+                QINZ STORE
+              </a>
+            </span>
+            <span className="text-white/30">|</span>
+            <a href="/privacy" className="text-fuchsia-200 hover:underline">
+              Privacy Policy
+            </a>
+            <span className="text-white/30">|</span>
+            <a href="/terms" className="text-fuchsia-200 hover:underline">
+              Terms
+            </a>
+          </div>
         </footer>
       </div>
       {toasts.length > 0 && (
