@@ -42,7 +42,7 @@ export default function RootLayout({
         <link rel="manifest" href="/api/manifest" />
         <script
           async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3047390780509413"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3604122645141902"
           crossOrigin="anonymous"
         ></script>
       </head>
