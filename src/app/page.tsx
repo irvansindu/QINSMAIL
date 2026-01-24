@@ -33,7 +33,7 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
   const [sseOn] = useState(true);
-  const [intervalMs] = useState(5000);
+  const [intervalMs] = useState(10000);
   const [newCount, setNewCount] = useState(0);
   const [savedList, setSavedList] = useState<string[]>([]);
   const [linkCopied, setLinkCopied] = useState(false);
