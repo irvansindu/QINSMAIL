@@ -42,6 +42,7 @@ export default function Home() {
   const [syncing, setSyncing] = useState(false);
   const [lastSyncMs, setLastSyncMs] = useState<number | null>(null);
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
+  const [backoffUntilMs, setBackoffUntilMs] = useState<number>(0);
   const [accessGateEnabled, setAccessGateEnabled] = useState(true);
   const [accessGranted, setAccessGranted] = useState(false);
   const [accessChecking, setAccessChecking] = useState(true);
@@ -509,17 +510,35 @@ export default function Home() {
   const checkEmails = async (): Promise<boolean> => {
     const full = `${email}${domain}`.toLowerCase();
     if (!email || !domain) return false;
-    const showSpinner = emails.length === 0; // only show skeleton on first load
-    try {
+    const showSpinner = emails.length === 0;
+    const doPoll = async (showSpinner = false): Promise<boolean> => {
+      if (backoffUntilMs && Date.now() < backoffUntilMs) return false;
       if (showSpinner) setLoading(true);
-      interface ApiInboxItem { id: string | number; from: string; subject: string; date: string; text: string; html: string }
-      const res = await axios.get<{ok:boolean; data:ApiInboxItem[]; error?:string}>(
-        `/api/inbox?to=${encodeURIComponent(full)}`
-      );
-      if (!res.data?.ok) {
-        console.warn('Inbox fetch failed:', res.data?.error || 'unknown error');
-        return false;
-      }
+      try {
+        interface ApiInboxItem { id: string | number; from: string; subject: string; date: string; text: string; html: string }
+        const res = await axios.get<{
+          ok: boolean;
+          data: ApiInboxItem[];
+          error?: string;
+          retryAfter?: string;
+          retryAfterMs?: number;
+        }>(
+          `/api/inbox?to=${encodeURIComponent(full)}`
+        );
+        if (!res.data?.ok) {
+          const ra = res.data?.retryAfter;
+          const raMs = typeof res.data?.retryAfterMs === 'number' ? res.data.retryAfterMs : undefined;
+          const until = ra
+            ? new Date(ra).getTime()
+            : typeof raMs === 'number'
+              ? Date.now() + raMs
+              : 0;
+          if (until && Number.isFinite(until)) {
+            setBackoffUntilMs(until);
+          }
+          console.warn('Inbox fetch failed:', res.data?.error || 'unknown error');
+          return false;
+        }
       const list: Email[] = (res.data.data || [])
         .map((m: ApiInboxItem): Email => ({
           id: m.id,
@@ -587,13 +606,16 @@ export default function Home() {
         setEmails(merged);
         try { if (typeof window !== 'undefined') window.scrollTo(0, prevY); } catch {}
       }
-      return true;
-    } catch (e) {
-      console.error(e);
-      return false;
-    } finally {
-      if (showSpinner) setLoading(false);
-    }
+        return true;
+      } catch (e) {
+        console.error(e);
+        return false;
+      } finally {
+        if (showSpinner) setLoading(false);
+      }
+    };
+
+    return await doPoll(showSpinner);
   };
 
   // (Removed) Manual reload — auto refresh runs every 5s.
@@ -681,11 +703,12 @@ export default function Home() {
     void doPoll();
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [email, domain, intervalMs]);
+  }, [email, domain, intervalMs, backoffUntilMs]);
 
   // Realtime via SSE
   useEffect(() => {
     if (!sseOn || !email || !domain) return;
+    if (backoffUntilMs && Date.now() < backoffUntilMs) return;
     const addr = `${email}${domain}`.toLowerCase();
     if (!addr.includes('@')) return;
     let closed = false;
@@ -729,11 +752,21 @@ export default function Home() {
       } catch {}
     };
     es.addEventListener('messages', onMessages);
+
+    const onRateLimit = (ev: MessageEvent) => {
+      try {
+        const data = JSON.parse(ev.data || '{}') as { retryAfter?: string; retryAfterMs?: number };
+        const until = data.retryAfter ? new Date(data.retryAfter).getTime() : (typeof data.retryAfterMs === 'number' ? Date.now() + data.retryAfterMs : 0);
+        if (until && Number.isFinite(until)) setBackoffUntilMs(until);
+      } catch {}
+      es.close();
+    };
+    es.addEventListener('rate_limit', onRateLimit);
     const onError = () => { if (!closed) setTimeout(()=>{}, 0); };
     es.addEventListener('error', onError as EventListener);
     return () => { closed = true; es.close(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sseOn, email, domain, intervalMs]);
+  }, [sseOn, email, domain, intervalMs, backoffUntilMs]);
 
   return (
     <main className={`relative min-h-screen overflow-hidden p-4 md:p-8 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] bg-[#0b0613] ${maintenanceMode ? 'h-screen overflow-hidden' : ''}`}>

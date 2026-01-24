@@ -30,6 +30,8 @@ export async function GET(req: NextRequest) {
           const json = await res.json();
           if (json?.ok) {
             send('messages', json.data || []);
+          } else if (json && (json.retryAfter || typeof json.retryAfterMs === 'number')) {
+            send('rate_limit', { error: json?.error || 'rate_limited', retryAfter: json.retryAfter, retryAfterMs: json.retryAfterMs });
           } else {
             send('error', json?.error || 'unknown');
           }
