@@ -1274,7 +1274,7 @@ export default function Home() {
 
         <div className="mt-12 mb-10">
           <Carousel
-            baseWidth={980}
+            baseWidth={1152}
             autoplay={false}
             autoplayDelay={3000}
             pauseOnHover={false}
