@@ -12,7 +12,7 @@ export async function GET(req: Request) {
   const clientId = process.env.GMAIL_CLIENT_ID;
   const clientSecret = process.env.GMAIL_CLIENT_SECRET;
   const refreshToken = process.env.GMAIL_REFRESH_TOKEN;
-  const retentionHours = Number(process.env.FREE_RETENTION_HOURS || 24);
+  const retentionHours = Number(process.env.FREE_RETENTION_HOURS || 1);
   
   if (clientId && clientSecret && refreshToken) {
     try {
