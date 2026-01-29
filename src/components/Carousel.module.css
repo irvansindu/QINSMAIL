@@ -1,17 +1,25 @@
 .carouselContainer {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 24px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.04);
+  background:
+    radial-gradient(900px 450px at 50% 0%, rgba(236, 72, 153, 0.18), transparent 60%),
+    radial-gradient(700px 420px at 85% 25%, rgba(168, 85, 247, 0.16), transparent 55%),
+    radial-gradient(700px 450px at 15% 35%, rgba(244, 63, 94, 0.12), transparent 60%),
+    rgba(255, 255, 255, 0.035);
   backdrop-filter: blur(16px);
+  box-shadow:
+    0 22px 90px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --outer-r: 24px;
   --p-distance: 12px;
 }
 
 .carouselTrack {
   display: flex;
+  margin: 0 auto;
 }
 
 .carouselItem {
@@ -21,9 +29,11 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: space-between;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: calc(var(--outer-r) - var(--p-distance));
-  background-color: rgba(13, 7, 22, 0.85);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%),
+    rgba(13, 7, 22, 0.82);
   overflow: hidden;
   cursor: grab;
   transform-style: preserve-3d;
@@ -65,7 +75,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background-color: #fff;
+  background: linear-gradient(180deg, #ffffff 0%, #f4f4f5 100%);
   color: #060010;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
@@ -113,6 +123,11 @@
   width: 150px;
   justify-content: space-between;
   padding: 0 32px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 999px;
+  height: 32px;
+  align-items: center;
 }
 
 .carouselIndicator {
@@ -124,11 +139,12 @@
 }
 
 .carouselIndicator.active {
-  background-color: #fff;
+  background: linear-gradient(90deg, rgba(236, 72, 153, 0.95), rgba(168, 85, 247, 0.95));
+  box-shadow: 0 0 16px rgba(232, 121, 249, 0.45);
 }
 
 .carouselIndicator.inactive {
-  background-color: rgba(255, 255, 255, 0.35);
+  background-color: rgba(255, 255, 255, 0.22);
 }
 
 @media (max-width: 420px) {
