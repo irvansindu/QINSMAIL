@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, FormEvent } from 'react';
 import axios from 'axios';
 import Image from 'next/image';
+import Script from 'next/script';
 import QRCode from 'qrcode';
 import { CopyIcon, RefreshCw, Mail, Inbox, Trash2, Sparkles, Shield, Zap, Smartphone } from 'lucide-react';
 
@@ -64,6 +65,14 @@ export default function Home() {
   const [promoBannerText, setPromoBannerText] = useState('');
   const [promoBannerUrl, setPromoBannerUrl] = useState('');
   const [promoBannerVariant, setPromoBannerVariant] = useState<'info' | 'success' | 'warning'>('info');
+
+  const canLoadAdsense =
+    !maintenanceMode &&
+    !accessChecking &&
+    (!accessGateEnabled || accessGranted);
+
+  const adsenseClient =
+    process.env.NEXT_PUBLIC_ADSENSE_CLIENT || 'ca-pub-3604122645141902';
 
   type ToastType = 'success' | 'error' | 'info';
   interface Toast { id: number; text: string; type: ToastType }
@@ -770,6 +779,14 @@ export default function Home() {
 
   return (
     <main className={`relative min-h-screen overflow-hidden p-4 md:p-8 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] bg-[#0b0613] ${maintenanceMode ? 'h-screen overflow-hidden' : ''}`}>
+      {canLoadAdsense && adsenseClient ? (
+        <Script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(adsenseClient)}`}
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
+      ) : null}
       {maintenanceMode ? (
         <div className="fixed inset-0 z-100 flex items-center justify-center bg-[#0b0613] p-6 text-center overflow-hidden">
           <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(900px 450px at 50% 0%, rgba(236,72,153,0.3), transparent 60%), radial-gradient(700px 420px at 85% 25%, rgba(168,85,247,0.25), transparent 55%)' }} aria-hidden="true" />
