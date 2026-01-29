@@ -7,6 +7,7 @@ import Script from 'next/script';
 import QRCode from 'qrcode';
 import { CopyIcon, RefreshCw, Mail, Inbox, Trash2, Sparkles, Shield, Zap, Smartphone } from 'lucide-react';
 import Carousel from '../components/Carousel';
+import GooeyNav from '../components/GooeyNav';
 
 const DEFAULT_DOMAINS: string[] = [];
 
@@ -783,7 +784,7 @@ export default function Home() {
   }, [sseOn, email, domain, intervalMs, backoffUntilMs]);
 
   return (
-    <main className={`relative min-h-screen overflow-hidden p-4 md:p-8 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] bg-[#0b0613] ${maintenanceMode ? 'h-screen overflow-hidden' : ''}`}>
+    <main className={`relative min-h-screen overflow-hidden p-4 md:p-8 pt-[env(safe-area-inset-top)] pb-[calc(env(safe-area-inset-bottom)+96px)] bg-[#0b0613] ${maintenanceMode ? 'h-screen overflow-hidden' : ''}`}>
       {canLoadAdsense && adsenseClient ? (
         <Script
           async
@@ -1122,7 +1123,7 @@ export default function Home() {
             </div>
           </div>
         )}
-          <div className="flex items-center justify-between mb-4">
+          <div id="inbox" className="flex items-center justify-between mb-4 scroll-mt-24">
             <h2 className="text-lg font-semibold flex items-center gap-2 text-white">
               <Inbox size={20} /> Kotak Masuk
               {emails.length > 0 && (
@@ -1277,7 +1278,7 @@ export default function Home() {
         )}
 
         {panduanSingkatEnabled && (
-          <div className="mt-12 mb-10">
+          <div id="panduan" className="mt-12 mb-10 scroll-mt-24">
             <Carousel
               baseWidth={1152}
               autoplay={false}
@@ -1347,7 +1348,7 @@ export default function Home() {
           </div>
         )}
 
-        <footer className="text-center text-sm text-white/60 mt-12">
+        <footer id="footer" className="text-center text-sm text-white/60 mt-12 scroll-mt-24">
           <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
             <span>
               &copy; 2025{' '}
@@ -1371,6 +1372,27 @@ export default function Home() {
           </div>
         </footer>
       </div>
+
+      {!maintenanceMode && !accessChecking && (!accessGateEnabled || accessGranted) && (
+        <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50">
+          <GooeyNav
+            items={
+              [
+                { label: 'Inbox', href: '#inbox' },
+                ...(panduanSingkatEnabled ? [{ label: 'Panduan', href: '#panduan' }] : []),
+                { label: 'Bantuan', href: '#footer' },
+              ]
+            }
+            particleCount={15}
+            particleDistances={[90, 10]}
+            particleR={100}
+            initialActiveIndex={0}
+            animationTime={600}
+            timeVariance={300}
+            colors={[1, 2, 3, 1, 2, 3, 1, 4]}
+          />
+        </div>
+      )}
       {toasts.length > 0 && (
         <div className="fixed bottom-4 right-4 z-60 flex flex-col gap-2">
           {toasts.map(t => (
