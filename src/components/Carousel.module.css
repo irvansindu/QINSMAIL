@@ -154,8 +154,36 @@
 }
 
 @media (max-width: 420px) {
+  .carouselContainer {
+    padding: 12px;
+    border-radius: 20px;
+  }
+
+  .carouselItemHeader {
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+
+  .carouselItemContent {
+    padding: 16px;
+  }
+
+  .carouselItemTitle {
+    font-size: 16px;
+  }
+
+  .carouselItemDescription {
+    font-size: 13px;
+  }
+
   .carouselIndicators {
-    width: 128px;
-    padding: 0 22px;
+    width: 124px;
+    padding: 0 18px;
+    height: 30px;
+  }
+
+  .carouselIndicator {
+    height: 7px;
+    width: 7px;
   }
 }

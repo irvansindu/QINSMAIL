@@ -1283,7 +1283,7 @@ export default function Home() {
             items={[
               {
                 id: 1,
-                title: 'Cara Pakai',
+                title: 'Cara Pakai ✨',
                 description: 'Langkah cepat dari buat alamat sampai baca pesan',
                 icon: <Inbox size={16} />,
                 content: (
@@ -1297,7 +1297,7 @@ export default function Home() {
               },
               {
                 id: 2,
-                title: 'FAQ',
+                title: 'FAQ 💡',
                 description: 'Jawaban cepat pertanyaan yang paling sering',
                 icon: <Shield size={16} />,
                 content: (
@@ -1319,7 +1319,7 @@ export default function Home() {
               },
               {
                 id: 3,
-                title: 'Aturan Penggunaan',
+                title: 'Aturan Penggunaan 🛡️',
                 description: 'Menjaga layanan tetap aman untuk semua',
                 icon: <Zap size={16} />,
                 content: (

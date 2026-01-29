@@ -83,7 +83,13 @@ export default function Carousel({
   round?: boolean;
 }) {
   const containerPadding = 16;
-  const itemWidth = baseWidth - containerPadding * 2;
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [containerWidth, setContainerWidth] = useState<number | null>(null);
+  const effectiveBaseWidth = Math.max(
+    containerPadding * 2 + 1,
+    Math.min(baseWidth, containerWidth ?? baseWidth),
+  );
+  const itemWidth = effectiveBaseWidth - containerPadding * 2;
   const trackItemOffset = itemWidth + GAP;
   const itemsForRender = useMemo(() => {
     if (!loop) return items;
@@ -97,7 +103,16 @@ export default function Carousel({
   const [isJumping, setIsJumping] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!containerRef.current) return undefined;
+    const el = containerRef.current;
+    const ro = new ResizeObserver((entries) => {
+      const next = entries[0]?.contentRect?.width;
+      if (typeof next === 'number') setContainerWidth(next);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     if (pauseOnHover && containerRef.current) {
