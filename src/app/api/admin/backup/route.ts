@@ -61,8 +61,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: 'bad-request' }, { status: 400 });
     }
 
-    const domainsRaw = (b as any).domains as unknown;
-    const settingsRaw = (b as any).settings as unknown;
+    const bObj = b as Record<string, unknown>;
+    const domainsRaw = bObj.domains;
+    const settingsRaw = bObj.settings;
 
     if (!Array.isArray(domainsRaw) || !settingsRaw || typeof settingsRaw !== 'object') {
       return NextResponse.json({ ok: false, error: 'invalid-backup' }, { status: 400 });
