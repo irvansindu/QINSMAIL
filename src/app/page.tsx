@@ -1165,7 +1165,7 @@ export default function Home() {
                   <Mail size={48} className="mx-auto mb-4 text-white/30" />
                   <p className="font-medium">Kotak masuk Anda kosong</p>
                   <p className="text-sm mt-1">Email yang dikirim ke {currentAddress() || 'alamat ini'} akan tampil di sini</p>
-                  <p className="text-[10px] mt-4 opacity-40 italic">Semua pesan otomatis dihapus setelah 24 jam</p>
+                  <p className="text-[10px] mt-4 opacity-40 italic">Semua pesan otomatis dihapus setelah 1 jam</p>
                 </div>
               )
             ) : (
@@ -1270,6 +1270,53 @@ export default function Home() {
             </div>
           </div>
         )}
+
+        <section className="mt-10 mb-8 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-xl">
+          <h2 className="text-2xl font-bold text-white mb-2">Panduan Singkat</h2>
+          <p className="text-sm text-white/70 mb-6">
+            Halaman ini adalah layanan email sementara untuk menerima pesan dengan cepat tanpa memakai email utama.
+            Cocok untuk testing, trial aplikasi, verifikasi newsletter, dan kebutuhan sementara lainnya.
+          </p>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
+              <h3 className="font-semibold text-white mb-2">Cara Pakai</h3>
+              <ol className="text-sm text-white/70 space-y-1 list-decimal list-inside">
+                <li>Buat alamat email sementara di atas.</li>
+                <li>Salin alamat, lalu pakai untuk daftar/login di website lain.</li>
+                <li>Tunggu email masuk di bagian Kotak Masuk.</li>
+                <li>Buka pesan untuk melihat isi/OTP, lalu selesai.</li>
+              </ol>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
+              <h3 className="font-semibold text-white mb-2">FAQ</h3>
+              <div className="text-sm text-white/70 space-y-2">
+                <div>
+                  <div className="font-medium text-white/90">Kenapa email belum muncul?</div>
+                  <div>Biasanya karena pengirim lambat, antrean Gmail, atau koneksi. Auto refresh jalan tiap 10 detik.</div>
+                </div>
+                <div>
+                  <div className="font-medium text-white/90">Berapa lama pesan disimpan?</div>
+                  <div>Pesan akan dihapus otomatis setelah 1 jam untuk menjaga privasi dan mengurangi penumpukan.</div>
+                </div>
+                <div>
+                  <div className="font-medium text-white/90">Apakah aman untuk akun penting?</div>
+                  <div>Tidak disarankan. Gunakan hanya untuk kebutuhan sementara, bukan akun utama/finansial.</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
+              <h3 className="font-semibold text-white mb-2">Aturan Penggunaan</h3>
+              <ul className="text-sm text-white/70 space-y-1 list-disc list-inside">
+                <li>Dilarang untuk spam, penipuan, atau aktivitas ilegal.</li>
+                <li>Jangan gunakan untuk melewati keamanan/penyalahgunaan layanan pihak lain.</li>
+                <li>Gunakan seperlunya, karena pesan bersifat sementara.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
 
         <footer className="text-center text-sm text-white/60 mt-12">
           <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
