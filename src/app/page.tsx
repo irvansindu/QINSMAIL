@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Script from 'next/script';
 import QRCode from 'qrcode';
 import { CopyIcon, RefreshCw, Mail, Inbox, Trash2, Sparkles, Shield, Zap, Smartphone } from 'lucide-react';
+import Carousel from '../components/Carousel';
 
 const DEFAULT_DOMAINS: string[] = [];
 
@@ -1271,95 +1272,74 @@ export default function Home() {
           </div>
         )}
 
-        <section className="mt-12 mb-10 rounded-[28px] border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_20px_80px_rgba(0,0,0,0.35)] overflow-hidden">
-          <div className="px-6 py-6 sm:px-8 sm:py-7 border-b border-white/10 bg-linear-to-r from-fuchsia-500/10 via-pink-500/10 to-rose-500/10">
-            <div className="flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold bg-white/5 text-white/70 ring-1 ring-white/10 mb-2">
-                  <Sparkles size={12} className="text-fuchsia-300" />
-                  Panduan & Info
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-                  Panduan Singkat
-                </h2>
-                <p className="text-sm sm:text-[15px] text-white/70 mt-2 max-w-3xl">
-                  Email sementara untuk menerima pesan dengan cepat tanpa memakai email utama. Cocok untuk testing, trial aplikasi,
-                  verifikasi newsletter, dan kebutuhan sementara lainnya.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-6 sm:p-8">
-            <div className="grid gap-5 lg:grid-cols-3">
-              <div className="group rounded-2xl border border-white/10 bg-black/10 p-5 transition hover:bg-white/5 hover:border-white/15">
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="h-10 w-10 rounded-2xl bg-fuchsia-500/10 ring-1 ring-fuchsia-500/20 flex items-center justify-center text-fuchsia-200">
-                    <Inbox size={18} />
+        <div className="mt-12 mb-10">
+          <Carousel
+            baseWidth={980}
+            autoplay={false}
+            autoplayDelay={3000}
+            pauseOnHover={false}
+            loop={false}
+            round={false}
+            items={[
+              {
+                id: 1,
+                title: 'Cara Pakai',
+                description: 'Langkah cepat dari buat alamat sampai baca pesan',
+                icon: <Inbox size={16} />,
+                content: (
+                  <ol className="space-y-2 list-decimal list-inside">
+                    <li>Buat alamat email sementara di atas.</li>
+                    <li>Salin alamat, lalu pakai untuk daftar/login di website lain.</li>
+                    <li>Tunggu email masuk di Kotak Masuk (auto refresh 10 detik).</li>
+                    <li>Buka pesan untuk melihat isi/OTP, lalu selesai.</li>
+                  </ol>
+                ),
+              },
+              {
+                id: 2,
+                title: 'FAQ',
+                description: 'Jawaban cepat pertanyaan yang paling sering',
+                icon: <Shield size={16} />,
+                content: (
+                  <div className="space-y-3">
+                    <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                      <div className="font-medium text-white/90">Kenapa email belum muncul?</div>
+                      <div className="mt-1">Biasanya karena pengirim lambat, antrean Gmail, atau koneksi.</div>
+                    </div>
+                    <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                      <div className="font-medium text-white/90">Berapa lama pesan disimpan?</div>
+                      <div className="mt-1">Pesan akan dihapus otomatis setelah 1 jam untuk menjaga privasi.</div>
+                    </div>
+                    <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                      <div className="font-medium text-white/90">Aman untuk akun penting?</div>
+                      <div className="mt-1">Tidak disarankan. Pakai hanya untuk kebutuhan sementara.</div>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <h3 className="font-semibold text-white">Cara Pakai</h3>
-                    <p className="text-xs text-white/55">Langkah cepat dari buat alamat sampai baca pesan</p>
+                ),
+              },
+              {
+                id: 3,
+                title: 'Aturan Penggunaan',
+                description: 'Menjaga layanan tetap aman untuk semua',
+                icon: <Zap size={16} />,
+                content: (
+                  <div>
+                    <ul className="space-y-2 list-disc list-inside">
+                      <li>Dilarang untuk spam, penipuan, atau aktivitas ilegal.</li>
+                      <li>Jangan gunakan untuk melewati keamanan/penyalahgunaan layanan pihak lain.</li>
+                      <li>Gunakan seperlunya, karena pesan bersifat sementara.</li>
+                    </ul>
+                    <div className="mt-4 text-xs text-white/50">
+                      Dengan memakai layanan ini, kamu setuju dengan{' '}
+                      <a href="/terms" className="text-fuchsia-200 hover:underline">Terms</a> dan{' '}
+                      <a href="/privacy" className="text-fuchsia-200 hover:underline">Privacy Policy</a>.
+                    </div>
                   </div>
-                </div>
-                <ol className="text-sm text-white/70 space-y-2 list-decimal list-inside">
-                  <li>Buat alamat email sementara di atas.</li>
-                  <li>Salin alamat, lalu pakai untuk daftar/login di website lain.</li>
-                  <li>Tunggu email masuk di bagian Kotak Masuk (auto refresh 10 detik).</li>
-                  <li>Buka pesan untuk melihat isi/OTP, lalu selesai.</li>
-                </ol>
-              </div>
-
-              <div className="group rounded-2xl border border-white/10 bg-black/10 p-5 transition hover:bg-white/5 hover:border-white/15">
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="h-10 w-10 rounded-2xl bg-emerald-500/10 ring-1 ring-emerald-500/20 flex items-center justify-center text-emerald-200">
-                    <Shield size={18} />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="font-semibold text-white">FAQ</h3>
-                    <p className="text-xs text-white/55">Jawaban cepat pertanyaan yang paling sering</p>
-                  </div>
-                </div>
-
-                <div className="text-sm text-white/70 space-y-3">
-                  <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-                    <div className="font-medium text-white/90">Kenapa email belum muncul?</div>
-                    <div className="mt-1">Biasanya karena pengirim lambat, antrean Gmail, atau koneksi. Auto refresh jalan tiap 10 detik.</div>
-                  </div>
-                  <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-                    <div className="font-medium text-white/90">Berapa lama pesan disimpan?</div>
-                    <div className="mt-1">Pesan akan dihapus otomatis setelah 1 jam untuk menjaga privasi dan mengurangi penumpukan.</div>
-                  </div>
-                  <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-                    <div className="font-medium text-white/90">Apakah aman untuk akun penting?</div>
-                    <div className="mt-1">Tidak disarankan. Gunakan hanya untuk kebutuhan sementara, bukan akun utama/finansial.</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="group rounded-2xl border border-white/10 bg-black/10 p-5 transition hover:bg-white/5 hover:border-white/15">
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="h-10 w-10 rounded-2xl bg-amber-500/10 ring-1 ring-amber-500/20 flex items-center justify-center text-amber-200">
-                    <Zap size={18} />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="font-semibold text-white">Aturan Penggunaan</h3>
-                    <p className="text-xs text-white/55">Menjaga layanan tetap aman untuk semua</p>
-                  </div>
-                </div>
-                <ul className="text-sm text-white/70 space-y-2 list-disc list-inside">
-                  <li>Dilarang untuk spam, penipuan, atau aktivitas ilegal.</li>
-                  <li>Jangan gunakan untuk melewati keamanan/penyalahgunaan layanan pihak lain.</li>
-                  <li>Gunakan seperlunya, karena pesan bersifat sementara.</li>
-                </ul>
-                <div className="mt-4 text-xs text-white/50">
-                  Dengan memakai layanan ini, kamu setuju dengan <a href="/terms" className="text-fuchsia-200 hover:underline">Terms</a> dan
-                  <a href="/privacy" className="ml-1 text-fuchsia-200 hover:underline">Privacy Policy</a>.
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+                ),
+              },
+            ]}
+          />
+        </div>
 
         <footer className="text-center text-sm text-white/60 mt-12">
           <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
