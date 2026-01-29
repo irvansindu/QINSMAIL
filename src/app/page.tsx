@@ -59,6 +59,7 @@ export default function Home() {
   const [maintenanceEtaText, setMaintenanceEtaText] = useState('Segera Kembali');
   const [maintenanceContactText, setMaintenanceContactText] = useState('');
   const [maintenanceContactUrl, setMaintenanceContactUrl] = useState('');
+  const [panduanSingkatEnabled, setPanduanSingkatEnabled] = useState(true);
   const [siteTitle, setSiteTitle] = useState('Email Sementara');
   const [siteDescription, setSiteDescription] = useState('Layanan email sementara sekali pakai');
   const [logoUrl, setLogoUrl] = useState('');
@@ -181,6 +182,9 @@ export default function Home() {
             if (!s.accessGateEnabled) {
               setAccessGranted(true);
             }
+          }
+          if (typeof s.panduanSingkatEnabled === 'boolean') {
+            setPanduanSingkatEnabled(s.panduanSingkatEnabled);
           }
           if (typeof s.maintenanceMode === 'boolean') {
             setMaintenanceMode(s.maintenanceMode);
@@ -1272,74 +1276,76 @@ export default function Home() {
           </div>
         )}
 
-        <div className="mt-12 mb-10">
-          <Carousel
-            baseWidth={1152}
-            autoplay={false}
-            autoplayDelay={3000}
-            pauseOnHover={false}
-            loop={false}
-            round={false}
-            items={[
-              {
-                id: 1,
-                title: 'Cara Pakai ✨',
-                description: 'Langkah cepat dari buat alamat sampai baca pesan',
-                icon: <Inbox size={16} />,
-                content: (
-                  <ol className="space-y-2 list-decimal list-inside">
-                    <li>Buat alamat email sementara di atas.</li>
-                    <li>Salin alamat, lalu pakai untuk daftar/login di website lain.</li>
-                    <li>Tunggu email masuk di Kotak Masuk (auto refresh 10 detik).</li>
-                    <li>Buka pesan untuk melihat isi/OTP, lalu selesai.</li>
-                  </ol>
-                ),
-              },
-              {
-                id: 2,
-                title: 'FAQ 💡',
-                description: 'Jawaban cepat pertanyaan yang paling sering',
-                icon: <Shield size={16} />,
-                content: (
-                  <div className="space-y-3">
-                    <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-                      <div className="font-medium text-white/90">Kenapa email belum muncul?</div>
-                      <div className="mt-1">Biasanya karena pengirim lambat, antrean Gmail, atau koneksi.</div>
+        {panduanSingkatEnabled && (
+          <div className="mt-12 mb-10">
+            <Carousel
+              baseWidth={1152}
+              autoplay={false}
+              autoplayDelay={3000}
+              pauseOnHover={false}
+              loop={false}
+              round={false}
+              items={[
+                {
+                  id: 1,
+                  title: 'Cara Pakai ✨',
+                  description: 'Langkah cepat dari buat alamat sampai baca pesan',
+                  icon: <Inbox size={16} />,
+                  content: (
+                    <ol className="space-y-2 list-decimal list-inside">
+                      <li>Buat alamat email sementara di atas.</li>
+                      <li>Salin alamat, lalu pakai untuk daftar/login di website lain.</li>
+                      <li>Tunggu email masuk di Kotak Masuk (auto refresh 10 detik).</li>
+                      <li>Buka pesan untuk melihat isi/OTP, lalu selesai.</li>
+                    </ol>
+                  ),
+                },
+                {
+                  id: 2,
+                  title: 'FAQ 💡',
+                  description: 'Jawaban cepat pertanyaan yang paling sering',
+                  icon: <Shield size={16} />,
+                  content: (
+                    <div className="space-y-3">
+                      <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                        <div className="font-medium text-white/90">Kenapa email belum muncul?</div>
+                        <div className="mt-1">Biasanya karena pengirim lambat, antrean Gmail, atau koneksi.</div>
+                      </div>
+                      <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                        <div className="font-medium text-white/90">Berapa lama pesan disimpan?</div>
+                        <div className="mt-1">Pesan akan dihapus otomatis setelah 1 jam untuk menjaga privasi.</div>
+                      </div>
+                      <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                        <div className="font-medium text-white/90">Aman untuk akun penting?</div>
+                        <div className="mt-1">Tidak disarankan. Pakai hanya untuk kebutuhan sementara.</div>
+                      </div>
                     </div>
-                    <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-                      <div className="font-medium text-white/90">Berapa lama pesan disimpan?</div>
-                      <div className="mt-1">Pesan akan dihapus otomatis setelah 1 jam untuk menjaga privasi.</div>
+                  ),
+                },
+                {
+                  id: 3,
+                  title: 'Aturan Penggunaan 🛡️',
+                  description: 'Menjaga layanan tetap aman untuk semua',
+                  icon: <Zap size={16} />,
+                  content: (
+                    <div>
+                      <ul className="space-y-2 list-disc list-inside">
+                        <li>Dilarang untuk spam, penipuan, atau aktivitas ilegal.</li>
+                        <li>Jangan gunakan untuk melewati keamanan/penyalahgunaan layanan pihak lain.</li>
+                        <li>Gunakan seperlunya, karena pesan bersifat sementara.</li>
+                      </ul>
+                      <div className="mt-4 text-xs text-white/50">
+                        Dengan memakai layanan ini, kamu setuju dengan{' '}
+                        <a href="/terms" className="text-fuchsia-200 hover:underline">Terms</a> dan{' '}
+                        <a href="/privacy" className="text-fuchsia-200 hover:underline">Privacy Policy</a>.
+                      </div>
                     </div>
-                    <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-                      <div className="font-medium text-white/90">Aman untuk akun penting?</div>
-                      <div className="mt-1">Tidak disarankan. Pakai hanya untuk kebutuhan sementara.</div>
-                    </div>
-                  </div>
-                ),
-              },
-              {
-                id: 3,
-                title: 'Aturan Penggunaan 🛡️',
-                description: 'Menjaga layanan tetap aman untuk semua',
-                icon: <Zap size={16} />,
-                content: (
-                  <div>
-                    <ul className="space-y-2 list-disc list-inside">
-                      <li>Dilarang untuk spam, penipuan, atau aktivitas ilegal.</li>
-                      <li>Jangan gunakan untuk melewati keamanan/penyalahgunaan layanan pihak lain.</li>
-                      <li>Gunakan seperlunya, karena pesan bersifat sementara.</li>
-                    </ul>
-                    <div className="mt-4 text-xs text-white/50">
-                      Dengan memakai layanan ini, kamu setuju dengan{' '}
-                      <a href="/terms" className="text-fuchsia-200 hover:underline">Terms</a> dan{' '}
-                      <a href="/privacy" className="text-fuchsia-200 hover:underline">Privacy Policy</a>.
-                    </div>
-                  </div>
-                ),
-              },
-            ]}
-          />
-        </div>
+                  ),
+                },
+              ]}
+            />
+          </div>
+        )}
 
         <footer className="text-center text-sm text-white/60 mt-12">
           <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">

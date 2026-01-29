@@ -3,6 +3,7 @@ import path from 'path';
 
 export type AppSettings = {
   accessGateEnabled: boolean;
+  panduanSingkatEnabled: boolean;
   maintenanceMode: boolean;
   maintenanceTitle: string;
   maintenanceMessage: string;
@@ -23,6 +24,7 @@ export type AppSettings = {
 
 const DEFAULT_SETTINGS: AppSettings = {
   accessGateEnabled: true,
+  panduanSingkatEnabled: true,
   maintenanceMode: false,
   maintenanceTitle: 'Sistem Sedang Diperbarui',
   maintenanceMessage:
@@ -105,6 +107,10 @@ export async function getSettings(): Promise<AppSettings> {
           typeof parsed?.accessGateEnabled === 'boolean'
             ? parsed.accessGateEnabled
             : DEFAULT_SETTINGS.accessGateEnabled,
+        panduanSingkatEnabled:
+          typeof parsed?.panduanSingkatEnabled === 'boolean'
+            ? parsed.panduanSingkatEnabled
+            : DEFAULT_SETTINGS.panduanSingkatEnabled,
         maintenanceMode:
           typeof parsed?.maintenanceMode === 'boolean'
             ? parsed.maintenanceMode
@@ -176,6 +182,10 @@ export async function getSettings(): Promise<AppSettings> {
         typeof parsed?.accessGateEnabled === 'boolean'
           ? parsed.accessGateEnabled
           : DEFAULT_SETTINGS.accessGateEnabled,
+      panduanSingkatEnabled:
+        typeof parsed?.panduanSingkatEnabled === 'boolean'
+          ? parsed.panduanSingkatEnabled
+          : DEFAULT_SETTINGS.panduanSingkatEnabled,
       maintenanceMode:
         typeof parsed?.maintenanceMode === 'boolean'
           ? parsed.maintenanceMode
@@ -244,6 +254,10 @@ export async function updateSettings(patch: Partial<AppSettings>): Promise<AppSe
       typeof patch.accessGateEnabled === 'boolean'
         ? patch.accessGateEnabled
         : current.accessGateEnabled,
+    panduanSingkatEnabled:
+      typeof patch.panduanSingkatEnabled === 'boolean'
+        ? patch.panduanSingkatEnabled
+        : current.panduanSingkatEnabled,
     maintenanceMode:
       typeof patch.maintenanceMode === 'boolean'
         ? patch.maintenanceMode
