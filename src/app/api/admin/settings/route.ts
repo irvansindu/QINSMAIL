@@ -36,7 +36,6 @@ export async function PATCH(request: Request) {
   try {
     const body = (await request.json()) as {
       accessGateEnabled?: boolean;
-      panduanSingkatEnabled?: boolean;
       maintenanceMode?: boolean;
       maintenanceTitle?: string;
       maintenanceMessage?: string;
@@ -56,7 +55,6 @@ export async function PATCH(request: Request) {
     };
     const settings = await updateSettings({
       accessGateEnabled: body?.accessGateEnabled,
-      panduanSingkatEnabled: body?.panduanSingkatEnabled,
       maintenanceMode: body?.maintenanceMode,
       maintenanceTitle: body?.maintenanceTitle,
       maintenanceMessage: body?.maintenanceMessage,

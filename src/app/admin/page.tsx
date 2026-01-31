@@ -8,7 +8,6 @@ type SettingsResp = {
   ok: boolean;
   settings?: {
     accessGateEnabled?: boolean;
-    panduanSingkatEnabled?: boolean;
     maintenanceMode?: boolean;
     maintenanceTitle?: string;
     maintenanceMessage?: string;
@@ -45,7 +44,6 @@ export default function AdminPage() {
   const [domains, setDomains] = useState<string[]>([]);
   const [domainInput, setDomainInput] = useState('');
   const [accessGateEnabled, setAccessGateEnabled] = useState<boolean>(true);
-  const [panduanSingkatEnabled, setPanduanSingkatEnabled] = useState<boolean>(true);
   const [maintenanceMode, setMaintenanceMode] = useState<boolean>(false);
   const [maintenanceTitle, setMaintenanceTitle] = useState('');
   const [maintenanceMessage, setMaintenanceMessage] = useState('');
@@ -100,27 +98,6 @@ export default function AdminPage() {
     }
   };
 
-  const setPanduanSingkat = async (enabled: boolean) => {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await fetch('/api/admin/settings', {
-        method: 'PATCH',
-        headers,
-        body: JSON.stringify({ panduanSingkatEnabled: enabled }),
-      });
-      const json = (await res.json().catch(() => ({ ok: false }))) as SettingsResp;
-      if (!json.ok) throw new Error(json.error || 'failed');
-      const val = json.settings?.panduanSingkatEnabled;
-      if (typeof val === 'boolean') setPanduanSingkatEnabled(val);
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'failed';
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const headers = useMemo(() => {
     const h: Record<string, string> = { 'Content-Type': 'application/json' };
     if (token.trim()) h['x-admin-token'] = token.trim();
@@ -148,7 +125,6 @@ export default function AdminPage() {
       if (jsonSettings.ok) {
         const s = jsonSettings.settings;
         if (typeof s?.accessGateEnabled === 'boolean') setAccessGateEnabled(s.accessGateEnabled);
-        if (typeof s?.panduanSingkatEnabled === 'boolean') setPanduanSingkatEnabled(s.panduanSingkatEnabled);
         if (typeof s?.maintenanceMode === 'boolean') setMaintenanceMode(s.maintenanceMode);
         if (typeof s?.maintenanceTitle === 'string') setMaintenanceTitle(s.maintenanceTitle);
         if (typeof s?.maintenanceMessage === 'string') setMaintenanceMessage(s.maintenanceMessage);
@@ -202,7 +178,6 @@ export default function AdminPage() {
     setDomains([]);
     setDomainInput('');
     setAccessGateEnabled(true);
-    setPanduanSingkatEnabled(true);
     setMaintenanceMode(false);
     setMaintenanceTitle('');
     setMaintenanceMessage('');
@@ -340,7 +315,6 @@ export default function AdminPage() {
       const s = json.settings;
       if (s) {
         if (typeof s.accessGateEnabled === 'boolean') setAccessGateEnabled(s.accessGateEnabled);
-        if (typeof s.panduanSingkatEnabled === 'boolean') setPanduanSingkatEnabled(s.panduanSingkatEnabled);
         if (typeof s.maintenanceMode === 'boolean') setMaintenanceMode(s.maintenanceMode);
         if (typeof s.siteTitle === 'string') setSiteTitle(s.siteTitle);
         if (typeof s.siteDescription === 'string') setSiteDescription(s.siteDescription);
@@ -818,7 +792,7 @@ export default function AdminPage() {
               <div className="text-[11px] text-white/40">Import akan menimpa domains & settings sesuai isi file backup.</div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
                 <div className="flex items-center justify-between gap-4">
                   <div>
@@ -841,32 +815,6 @@ export default function AdminPage() {
                       aria-hidden="true"
                     />
                     <span className="relative z-10">{accessGateEnabled ? 'ON' : 'OFF'}</span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <div className="text-sm text-white">Panduan Singkat</div>
-                    <div className="text-xs text-white/60">Carousel di homepage</div>
-                  </div>
-                  <button
-                    onClick={() => setPanduanSingkat(!panduanSingkatEnabled)}
-                    disabled={loading}
-                    className={`relative h-9 w-[80px] rounded-full text-xs font-bold tracking-wide transition disabled:opacity-60 border border-white/10 shadow-inner ${
-                      panduanSingkatEnabled
-                        ? 'bg-linear-to-r from-fuchsia-600 via-pink-600 to-rose-600 text-white'
-                        : 'bg-white/5 text-white/80 hover:bg-white/10'
-                    }`}
-                  >
-                    <span
-                      className={`absolute top-0.5 left-0.5 h-7 w-7 rounded-full bg-white/90 shadow transition-transform ${
-                        panduanSingkatEnabled ? 'translate-x-[42px]' : 'translate-x-0'
-                      }`}
-                      aria-hidden="true"
-                    />
-                    <span className="relative z-10">{panduanSingkatEnabled ? 'ON' : 'OFF'}</span>
                   </button>
                 </div>
               </div>
