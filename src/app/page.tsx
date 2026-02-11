@@ -1165,7 +1165,7 @@ export default function Home() {
                   <Mail size={48} className="mx-auto mb-4 text-white/30" />
                   <p className="font-medium">Kotak masuk Anda kosong</p>
                   <p className="text-sm mt-1">Email yang dikirim ke {currentAddress() || 'alamat ini'} akan tampil di sini</p>
-                  <p className="text-[10px] mt-4 opacity-40 italic">Semua pesan otomatis dihapus setelah 1 jam</p>
+                  <p className="text-[10px] mt-4 opacity-40 italic">Semua pesan otomatis dihapus setelah 24 jam</p>
                 </div>
               )
             ) : (
@@ -1328,7 +1328,7 @@ export default function Home() {
                   </div>
                   <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
                     <div className="font-medium text-white/90">Berapa lama pesan disimpan?</div>
-                    <div className="mt-1">Pesan akan dihapus otomatis setelah 1 jam untuk menjaga privasi dan mengurangi penumpukan.</div>
+                    <div className="mt-1">Pesan akan dihapus otomatis setelah 24 jam untuk menjaga privasi dan mengurangi penumpukan.</div>
                   </div>
                   <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
                     <div className="font-medium text-white/90">Apakah aman untuk akun penting?</div>

@@ -26,7 +26,7 @@ export interface InboxItem {
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const to = (url.searchParams.get('to') || '').toLowerCase();
-  const hours = Number(url.searchParams.get('hours') || 1);
+  const hours = Number(url.searchParams.get('hours') || 24);
   if (!to) return NextResponse.json({ ok: false, error: 'Missing to' }, { status: 400 });
 
   const cacheKey = `${to}|${hours}`;
